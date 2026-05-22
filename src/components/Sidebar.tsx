@@ -53,6 +53,10 @@ export const Sidebar = ({ className }: SidebarProps) => {
     { icon: User, label: "Profile", href: "/profile" },
   ];
 
+  if (profile?.is_verified) {
+    menuItems.push({ icon: Terminal, label: "Private API", href: "/api-docs" });
+  }
+
   if (profile?.is_admin) {
     menuItems.push({ icon: ShieldCheck, label: "Admin Panel", href: "/admin" });
   }
