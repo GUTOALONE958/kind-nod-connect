@@ -190,20 +190,7 @@ function Dashboard() {
               </Button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Domínio / Subdomínio</label>
-                <Select value={selectedSubdomain} onValueChange={setSelectedSubdomain}>
-                  <SelectTrigger className="bg-background border-primary/10">
-                    <SelectValue placeholder="Selecione o domínio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subdomains.map(s => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}.{s.domain}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid grid-cols-1 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Categoria de Ganhos</label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
