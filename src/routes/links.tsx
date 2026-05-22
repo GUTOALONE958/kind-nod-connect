@@ -23,8 +23,6 @@ import {
   MoreVertical, 
   Search,
   Filter,
-  BarChart2,
-  Trash2,
   Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -44,30 +42,30 @@ function LinksPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    if (user) {
-      fetchLinks();
-    }
-  }, [user]);
-
   const fetchLinks = async () => {
+    if (!user) return;
+    
     const { data, error } = await supabase
       .from("links")
       .select("*, categories(name), subdomains(domain)")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
-      toast.error("Failed to fetch links");
+      toast.error("Erro ao buscar links");
     } else {
       setLinks(data || []);
     }
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetchLinks();
+  }, [user]);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Link copied to clipboard!");
+    toast.success("Link copiado!");
   };
 
   const filteredLinks = links.filter(link => 
@@ -82,8 +80,8 @@ function LinksPage() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Links</h1>
-          <p className="text-muted-foreground">Manage and track your shortened links.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Meus Links</h1>
+          <p className="text-muted-foreground">Gerencie e acompanhe seus links encurtados.</p>
         </div>
       </div>
 
@@ -93,7 +91,7 @@ function LinksPage() {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
-                placeholder="Search links..." 
+                placeholder="Buscar links..." 
                 className="pl-10" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -102,11 +100,11 @@ function LinksPage() {
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
-                Filter
+                Filtrar
               </Button>
               <Button variant="outline" size="sm">
                 <Calendar className="h-4 w-4 mr-2" />
-                Date Range
+                Data
               </Button>
             </div>
           </div>
@@ -116,46 +114,40 @@ function LinksPage() {
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead className="font-bold">Slug / Title</TableHead>
-                  <TableHead className="font-bold">Original URL</TableHead>
-                  <TableHead className="font-bold">Category</TableHead>
-                  <TableHead className="font-bold text-center">Clicks</TableHead>
-                  <TableHead className="font-bold text-right">Revenue</TableHead>
-                  <TableHead className="font-bold text-right">Created</TableHead>
-                  <TableHead className="font-bold text-right">Actions</TableHead>
+                  <TableHead className="font-bold">Slug</TableHead>
+                  <TableHead className="font-bold">URL Original</TableHead>
+                  <TableHead className="font-bold">Categoria</TableHead>
+                  <TableHead className="font-bold text-center">Cliques</TableHead>
+                  <TableHead className="font-bold text-right">Ganhos</TableHead>
+                  <TableHead className="font-bold text-right">Criado em</TableHead>
+                  <TableHead className="font-bold text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredLinks.length > 0 ? (
                   filteredLinks.map((link) => {
-                    const fullLink = `${link.subdomains?.name ? link.subdomains.name + '.' : ''}${link.subdomains?.domain || 'alphalink.com'}/go/${link.short_slug}`;
+                    const fullLink = `${link.subdomains?.domain || 'go.alphalink.com'}/go/${link.short_slug}`;
                     return (
                       <TableRow key={link.id} className="hover:bg-muted/30 transition-colors">
                         <TableCell className="font-medium">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-primary">{link.short_slug}</span>
-                            <span className="text-xs text-muted-foreground truncate max-w-[150px]">{link.title || "No title"}</span>
-                          </div>
+                          <span className="font-bold text-primary">{link.short_slug}</span>
                         </TableCell>
                         <TableCell className="max-w-[200px] truncate text-muted-foreground">
                           {link.original_url}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">
-                            {link.categories?.name}
+                            {link.categories?.name || "Padrão"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex flex-col items-center">
-                            <span className="font-bold">{link.total_clicks || 0}</span>
-                            <span className="text-[10px] text-muted-foreground">clicks</span>
-                          </div>
+                        <TableCell className="text-center font-bold">
+                          {link.total_clicks || 0}
                         </TableCell>
                         <TableCell className="text-right font-bold text-emerald-500">
                           {formatCurrency(link.total_revenue || 0)}
                         </TableCell>
                         <TableCell className="text-right text-xs text-muted-foreground">
-                          {format(new Date(link.created_at), "MMM d, yyyy")}
+                          {format(new Date(link.created_at), "dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
@@ -178,7 +170,7 @@ function LinksPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                      No links found. Start shortening some!
+                      Nenhum link encontrado. Comece a encurtar!
                     </TableCell>
                   </TableRow>
                 )}
