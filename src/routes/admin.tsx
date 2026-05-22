@@ -62,10 +62,9 @@ function AdminPanel() {
     const [u, w, c, s, a] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("withdrawals").select("*, profiles(display_name)").order("created_at", { ascending: false }),
-      supabase.from("categories").select("*").order("cpm_value", { ascending: true }),
+      supabase.from("categories").select("*").order("step_count", { ascending: true }),
       supabase.from("subdomains").select("*").order("created_at", { ascending: false }),
-      // @ts-ignore
-      supabase.from("ads").select("*").order("created_at", { ascending: false })
+      supabase.from("ads_config").select("*").order("created_at", { ascending: false })
     ]);
 
     setUsers(u.data || []);
@@ -97,6 +96,45 @@ function AdminPanel() {
     if (error) toast.error(error.message);
     else {
       toast.success("Verification status updated!");
+      fetchAllData();
+    }
+  };
+
+  const updateAdStatus = async (id: string, active: boolean) => {
+    const { error } = await supabase
+      .from("ads_config")
+      .update({ is_active: active })
+      .eq("id", id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Ad status updated!");
+      fetchAllData();
+    }
+  };
+
+  const deleteAd = async (id: string) => {
+    const { error } = await supabase
+      .from("ads_config")
+      .delete()
+      .eq("id", id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Ad deleted!");
+      fetchAllData();
+    }
+  };
+
+  const updateCategory = async (id: string, updates: any) => {
+    const { error } = await supabase
+      .from("categories")
+      .update(updates)
+      .eq("id", id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Category updated!");
       fetchAllData();
     }
   };
@@ -145,9 +183,9 @@ function AdminPanel() {
             <Card className="border-none shadow-md bg-card/50">
               <CardContent className="pt-6">
                 <div className="text-sm font-bold text-muted-foreground mb-2">Platform Revenue</div>
-                <div className="text-2xl font-black">R$ 0.00</div>
+                <div className="text-2xl font-black">{formatCurrency(withdrawals.filter(w => w.status === 'completed').reduce((acc, curr) => acc + Number(curr.amount), 0))}</div>
                 <div className="text-[10px] text-muted-foreground font-bold flex items-center gap-1 mt-1">
-                  0% from last month
+                  Total processado
                 </div>
               </CardContent>
             </Card>
@@ -167,8 +205,8 @@ function AdminPanel() {
             </Card>
             <Card className="border-none shadow-md bg-card/50">
               <CardContent className="pt-6">
-                <div className="text-sm font-bold text-muted-foreground mb-2">Total Clicks</div>
-                <div className="text-2xl font-black">0</div>
+                <div className="text-sm font-bold text-muted-foreground mb-2">Global Balance</div>
+                <div className="text-2xl font-black">{formatCurrency(users.reduce((acc, curr) => acc + Number(curr.balance || 0), 0))}</div>
               </CardContent>
             </Card>
           </div>
@@ -289,23 +327,32 @@ function AdminPanel() {
                 <CardTitle>Ad Management (Adsterra)</CardTitle>
                 <CardDescription>Configure Popunders, Social Bars and Banners.</CardDescription>
               </div>
-              <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Ad Script</Button>
+              <Button size="sm" className="gap-2" onClick={() => {
+                const name = prompt("Nome do anúncio:");
+                const type = prompt("Tipo (popunder, banner, social-bar):");
+                const code = prompt("URL ou Script:");
+                if (name && type && code) {
+                  supabase.from("ads_config").insert({ name, ad_type: type, script_code: code, provider: 'Adsterra', is_active: true }).then(() => fetchAllData());
+                }
+              }}><Plus className="h-4 w-4" /> Add Ad Script</Button>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {ads.map((ad) => (
                   <div key={ad.id} className="p-4 rounded-xl border bg-background/50 space-y-3">
                     <div className="flex items-center justify-between">
-                      <Badge variant="outline" className="uppercase">{ad.type}</Badge>
+                      <Badge variant="outline" className="uppercase">{ad.ad_type}</Badge>
                       <Badge variant={ad.is_active ? "default" : "secondary"}>{ad.is_active ? 'Active' : 'Inactive'}</Badge>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-bold">{ad.provider}</p>
-                      <p className="text-[10px] text-muted-foreground font-mono truncate">{ad.script_code || ad.placement_id}</p>
+                      <p className="text-sm font-bold">{ad.name || ad.provider}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono truncate">{ad.script_code}</p>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1">Edit</Button>
-                      <Button size="sm" variant="ghost" className="text-destructive">Delete</Button>
+                      <Button size="sm" variant="outline" className="flex-1" onClick={() => updateAdStatus(ad.id, !ad.is_active)}>
+                        {ad.is_active ? 'Desativar' : 'Ativar'}
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteAd(ad.id)}>Delete</Button>
                     </div>
                   </div>
                 ))}
@@ -333,9 +380,32 @@ function AdminPanel() {
                         <p className="font-bold">{c.name}</p>
                         <p className="text-xs text-muted-foreground">{c.step_count} Etapas • {c.time_per_step}s por etapa</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex flex-col items-end gap-2">
                         <p className="font-black text-primary">R$ {c.cpm_value.toFixed(2)} CPM</p>
-                        <Button variant="link" size="sm" className="h-auto p-0">Edit</Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8"
+                            onClick={() => {
+                              const newVal = prompt("Novo valor de CPM:", c.cpm_value.toString());
+                              if (newVal !== null) updateCategory(c.id, { cpm_value: parseFloat(newVal) });
+                            }}
+                          >
+                            Editar CPM
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8"
+                            onClick={() => {
+                              const newSteps = prompt("Número de etapas:", c.step_count.toString());
+                              if (newSteps !== null) updateCategory(c.id, { step_count: parseInt(newSteps) });
+                            }}
+                          >
+                            Etapas
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
