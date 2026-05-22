@@ -327,7 +327,14 @@ function AdminPanel() {
                 <CardTitle>Ad Management (Adsterra)</CardTitle>
                 <CardDescription>Configure Popunders, Social Bars and Banners.</CardDescription>
               </div>
-              <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Ad Script</Button>
+              <Button size="sm" className="gap-2" onClick={() => {
+                const name = prompt("Nome do anúncio:");
+                const type = prompt("Tipo (popunder, banner, social-bar):");
+                const code = prompt("URL ou Script:");
+                if (name && type && code) {
+                  supabase.from("ads_config").insert({ name, ad_type: type, script_code: code, provider: 'Adsterra', is_active: true }).then(() => fetchAllData());
+                }
+              }}><Plus className="h-4 w-4" /> Add Ad Script</Button>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
