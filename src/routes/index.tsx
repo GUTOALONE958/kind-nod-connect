@@ -36,7 +36,7 @@ function FeatureCard({ icon: Icon, title, description }: { icon: any, title: str
 }
 
 function LandingPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -53,11 +53,18 @@ function LandingPage() {
             </div>
             <div className="flex items-center gap-4">
               {user ? (
-                <Button onClick={() => navigate({ to: "/dashboard" })}>Dashboard</Button>
+                <div className="flex items-center gap-3">
+                  {profile?.is_admin && (
+                    <Button variant="outline" onClick={() => navigate({ to: "/admin" })} className="border-primary text-primary hover:bg-primary/10">
+                      Painel Admin
+                    </Button>
+                  )}
+                  <Button onClick={() => navigate({ to: "/dashboard" })}>Meu Dashboard</Button>
+                </div>
               ) : (
                 <>
-                  <Link to="/login" className="text-sm font-medium hover:text-primary transition-colors">Login</Link>
-                  <Button onClick={() => navigate({ to: "/register" })}>Join Now</Button>
+                  <Link to="/login" className="text-lg font-bold text-primary hover:underline transition-colors px-4">Login</Link>
+                  <Button size="lg" onClick={() => navigate({ to: "/register" })} className="font-bold text-lg">Criar Conta Grátis</Button>
                 </>
               )}
             </div>
@@ -85,12 +92,12 @@ function LandingPage() {
               The highest CPM in the market. Advanced analytics, secure payments, and a premium experience for your audience.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" className="h-12 px-8 text-lg font-semibold shadow-lg shadow-primary/20" onClick={() => navigate({ to: "/register" })}>
-                Get Started for Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button size="lg" className="h-16 px-12 text-2xl font-black shadow-xl shadow-primary/30 animate-bounce" onClick={() => navigate({ to: "/register" })}>
+                CRIAR MINHA CONTA AGORA
+                <ArrowRight className="ml-2 h-6 w-6" />
               </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8 text-lg font-semibold" onClick={() => navigate({ to: "/api-docs" })}>
-                View API Docs
+              <Button size="lg" variant="outline" className="h-16 px-12 text-xl font-bold border-2" onClick={() => navigate({ to: "/login" })}>
+                ACESSAR MINHA CONTA
               </Button>
             </div>
           </motion.div>
