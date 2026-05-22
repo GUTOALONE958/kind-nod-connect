@@ -45,6 +45,7 @@ function RedirectionPage() {
   const [visitId, setVisitId] = useState<string | null>(null);
   const [isBot, setIsBot] = useState(false);
   const [adScripts, setAdScripts] = useState<any[]>([]);
+  const [hasTriggeredAd, setHasTriggeredAd] = useState(false);
   
   const timerRef = useRef<any>(null);
 
@@ -118,6 +119,25 @@ function RedirectionPage() {
   }, [loading, isBot, timer]);
 
   const handleNext = async () => {
+    // Adsterra Popunder logic: open ad on first click
+    if (!hasTriggeredAd) {
+      const popunderAd = adScripts.find(ad => ad.ad_type === 'popunder' || ad.ad_type === 'pop');
+      if (popunderAd && popunderAd.script_code) {
+        // If it's a URL, open it. If it's a script, it might already be running.
+        // For simple popunder behavior requested:
+        if (popunderAd.script_code.startsWith('http')) {
+          window.open(popunderAd.script_code, '_blank');
+        }
+      } else {
+        // Default behavior if no ad configured: open a generic ad or just skip
+        // window.open('https://www.highrevenuegate.com/example', '_blank');
+      }
+      setHasTriggeredAd(true);
+      return; // Stop here on first click
+    }
+
+    setHasTriggeredAd(false); // Reset for next step
+
     if (step < totalSteps) {
       if (visitId) {
         await supabase.rpc('register_step_view', {
