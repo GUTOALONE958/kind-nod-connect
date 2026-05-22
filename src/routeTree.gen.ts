@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as GoSlugRouteImport } from './routes/go.$slug'
 
 const LoginRoute = LoginRouteImport.update({
@@ -23,6 +24,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDocsRoute = ApiDocsRouteImport.update({
+  id: '/api-docs',
+  path: '/api-docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GoSlugRoute = GoSlugRouteImport.update({
   id: '/go/$slug',
   path: '/go/$slug',
@@ -30,30 +36,34 @@ const GoSlugRoute = GoSlugRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/go/$slug': typeof GoSlugRoute
 }
 export interface FileRoutesByTo {
+  '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/go/$slug': typeof GoSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/go/$slug': typeof GoSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/dashboard' | '/login' | '/go/$slug'
+  fullPaths: '/api-docs' | '/dashboard' | '/login' | '/go/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/dashboard' | '/login' | '/go/$slug'
-  id: '__root__' | '/dashboard' | '/login' | '/go/$slug'
+  to: '/api-docs' | '/dashboard' | '/login' | '/go/$slug'
+  id: '__root__' | '/api-docs' | '/dashboard' | '/login' | '/go/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  ApiDocsRoute: typeof ApiDocsRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   GoSlugRoute: typeof GoSlugRoute
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api-docs': {
+      id: '/api-docs'
+      path: '/api-docs'
+      fullPath: '/api-docs'
+      preLoaderRoute: typeof ApiDocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/go/$slug': {
       id: '/go/$slug'
       path: '/go/$slug'
@@ -86,6 +103,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  ApiDocsRoute: ApiDocsRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   GoSlugRoute: GoSlugRoute,

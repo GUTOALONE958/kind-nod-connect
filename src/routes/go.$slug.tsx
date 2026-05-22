@@ -21,20 +21,26 @@ function RedirectionPage() {
       // Record visit and get data
       const { data, error } = await supabase.rpc('process_link_visit', {
         p_slug: slug,
-        p_ip: '127.0.0.1', // Real implementation needs real IP
+        p_ip: '127.0.0.1', // Real implementation needs real IP from request
         p_user_agent: navigator.userAgent,
         p_country: 'BR',
         p_device: 'desktop',
         p_referrer: document.referrer
       });
 
-      if (error || !data.success) {
+      if (error || !data) {
         alert("Link not found");
         return;
       }
 
-      setOriginalUrl(data.original_url);
-      setTotalSteps(data.steps_count);
+      const result = data as any;
+      if (!result.success) {
+        alert("Link not found");
+        return;
+      }
+
+      setOriginalUrl(result.original_url);
+      setTotalSteps(result.steps_count);
       setLoading(false);
     };
 
