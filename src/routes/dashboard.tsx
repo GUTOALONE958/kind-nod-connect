@@ -43,13 +43,13 @@ import {
 } from "@/components/ui/select";
 
 const data = [
-  { name: "Mon", visits: 400, earnings: 2.4 },
-  { name: "Tue", visits: 300, earnings: 1.8 },
-  { name: "Wed", visits: 200, earnings: 1.2 },
-  { name: "Thu", visits: 278, earnings: 1.6 },
-  { name: "Fri", visits: 189, earnings: 1.1 },
-  { name: "Sat", visits: 239, earnings: 1.4 },
-  { name: "Sun", visits: 349, earnings: 2.1 },
+  { name: "Mon", visits: 0, earnings: 0 },
+  { name: "Tue", visits: 0, earnings: 0 },
+  { name: "Wed", visits: 0, earnings: 0 },
+  { name: "Thu", visits: 0, earnings: 0 },
+  { name: "Fri", visits: 0, earnings: 0 },
+  { name: "Sat", visits: 0, earnings: 0 },
+  { name: "Sun", visits: 0, earnings: 0 },
 ];
 
 export const Route = createFileRoute("/dashboard")({
@@ -101,16 +101,19 @@ function Dashboard() {
     setIsShortening(true);
     try {
       // Get default subdomain automatically
-      const { data: subRes } = await supabase.from('subdomains').select('id').eq('is_default', true).single();
+      const { data: subRes } = await supabase.from('subdomains').select('id').eq('is_default', true).limit(1).maybeSingle();
       
       const slug = Math.random().toString(36).substring(2, 9);
-      const { error } = await supabase.from("links").insert({
+      const linkData: any = {
         user_id: user.id,
         original_url: url,
         short_slug: slug,
-        subdomain_id: subRes?.id,
-        category_id: selectedCategory
-      });
+      };
+
+      if (subRes?.id) linkData.subdomain_id = subRes.id;
+      if (selectedCategory && selectedCategory !== "") linkData.category_id = selectedCategory;
+
+      const { error } = await supabase.from("links").insert(linkData);
 
       if (error) throw error;
       toast.success("Link encurtado com sucesso!");
@@ -151,20 +154,20 @@ function Dashboard() {
         />
         <StatCard 
           title="Total Clicks" 
-          value="1,284" 
+          value="0" 
           icon={MousePointer2} 
           description="Clicks this month"
-          trend="+8.2%"
+          trend="0%"
         />
         <StatCard 
           title="Average eCPM" 
-          value="R$ 42.50" 
+          value="R$ 0.00" 
           icon={TrendingUp} 
           description="Performance across all links"
         />
         <StatCard 
           title="Active Links" 
-          value="24" 
+          value="0" 
           icon={LinkIcon} 
           description="Total links generating revenue"
         />
@@ -248,23 +251,10 @@ function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-accent flex items-center justify-center">
-                    <Globe className="h-5 w-5 text-accent-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">Visit from Brazil</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {i * 2} mins ago
-                    </p>
-                  </div>
-                  <div className="text-sm font-bold text-emerald-500">
-                    +R$ 0.0240
-                  </div>
-                </div>
-              ))}
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Globe className="h-8 w-8 text-muted-foreground mb-2 opacity-20" />
+                <p className="text-sm text-muted-foreground">Nenhuma visita recente</p>
+              </div>
             </div>
           </CardContent>
         </Card>
