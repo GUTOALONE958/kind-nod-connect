@@ -128,7 +128,7 @@ function LinksPage() {
               <TableBody>
                 {filteredLinks.length > 0 ? (
                   filteredLinks.map((link) => {
-                    const fullLink = `${link.subdomains?.domain || 'go.yourdomain.com'}/${link.short_slug}`;
+                    const fullLink = `${link.subdomains?.name ? link.subdomains.name + '.' : ''}${link.subdomains?.domain || 'alphalink.com'}/go/${link.short_slug}`;
                     return (
                       <TableRow key={link.id} className="hover:bg-muted/30 transition-colors">
                         <TableCell className="font-medium">
