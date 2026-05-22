@@ -10,10 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LinksRouteImport } from './routes/links'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -23,6 +26,11 @@ import { Route as GoSlugRouteImport } from './routes/go.$slug'
 const WithdrawalsRoute = WithdrawalsRouteImport.update({
   id: '/withdrawals',
   path: '/withdrawals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -35,6 +43,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -43,6 +56,11 @@ const LoginRoute = LoginRouteImport.update({
 const LinksRoute = LinksRouteImport.update({
   id: '/links',
   path: '/links',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -76,10 +94,13 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
+  '/faq': typeof FaqRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/go/$slug': typeof GoSlugRoute
 }
@@ -88,10 +109,13 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
+  '/faq': typeof FaqRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/go/$slug': typeof GoSlugRoute
 }
@@ -101,10 +125,13 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
+  '/faq': typeof FaqRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
+  '/terms': typeof TermsRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/go/$slug': typeof GoSlugRoute
 }
@@ -115,10 +142,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api-docs'
     | '/dashboard'
+    | '/faq'
     | '/links'
     | '/login'
+    | '/privacy'
     | '/profile'
     | '/register'
+    | '/terms'
     | '/withdrawals'
     | '/go/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -127,10 +157,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api-docs'
     | '/dashboard'
+    | '/faq'
     | '/links'
     | '/login'
+    | '/privacy'
     | '/profile'
     | '/register'
+    | '/terms'
     | '/withdrawals'
     | '/go/$slug'
   id:
@@ -139,10 +172,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api-docs'
     | '/dashboard'
+    | '/faq'
     | '/links'
     | '/login'
+    | '/privacy'
     | '/profile'
     | '/register'
+    | '/terms'
     | '/withdrawals'
     | '/go/$slug'
   fileRoutesById: FileRoutesById
@@ -152,10 +188,13 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ApiDocsRoute: typeof ApiDocsRoute
   DashboardRoute: typeof DashboardRoute
+  FaqRoute: typeof FaqRoute
   LinksRoute: typeof LinksRoute
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
+  TermsRoute: typeof TermsRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
   GoSlugRoute: typeof GoSlugRoute
 }
@@ -167,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/withdrawals'
       fullPath: '/withdrawals'
       preLoaderRoute: typeof WithdrawalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -183,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -195,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/links'
       fullPath: '/links'
       preLoaderRoute: typeof LinksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -240,13 +300,26 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ApiDocsRoute: ApiDocsRoute,
   DashboardRoute: DashboardRoute,
+  FaqRoute: FaqRoute,
   LinksRoute: LinksRoute,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
+  TermsRoute: TermsRoute,
   WithdrawalsRoute: WithdrawalsRoute,
   GoSlugRoute: GoSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
