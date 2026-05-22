@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as GoSlugRouteImport } from './routes/go.$slug'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -41,6 +42,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GoSlugRoute = GoSlugRouteImport.update({
   id: '/go/$slug',
   path: '/go/$slug',
@@ -48,6 +54,7 @@ const GoSlugRoute = GoSlugRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
@@ -56,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/go/$slug': typeof GoSlugRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
@@ -65,6 +73,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
@@ -75,6 +84,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/admin'
     | '/api-docs'
     | '/dashboard'
@@ -83,6 +93,7 @@ export interface FileRouteTypes {
     | '/go/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/admin'
     | '/api-docs'
     | '/dashboard'
@@ -91,6 +102,7 @@ export interface FileRouteTypes {
     | '/go/$slug'
   id:
     | '__root__'
+    | '/'
     | '/admin'
     | '/api-docs'
     | '/dashboard'
@@ -100,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   ApiDocsRoute: typeof ApiDocsRoute
   DashboardRoute: typeof DashboardRoute
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/go/$slug': {
       id: '/go/$slug'
       path: '/go/$slug'
@@ -156,6 +176,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   ApiDocsRoute: ApiDocsRoute,
   DashboardRoute: DashboardRoute,
