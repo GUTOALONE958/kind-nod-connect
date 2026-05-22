@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WithdrawalsRouteImport } from './routes/withdrawals'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LinksRouteImport } from './routes/links'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -27,6 +28,11 @@ const WithdrawalsRoute = WithdrawalsRouteImport.update({
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/go/$slug': typeof GoSlugRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/go/$slug': typeof GoSlugRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/links': typeof LinksRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/withdrawals': typeof WithdrawalsRoute
   '/go/$slug': typeof GoSlugRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/links'
     | '/login'
+    | '/profile'
     | '/register'
     | '/withdrawals'
     | '/go/$slug'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/links'
     | '/login'
+    | '/profile'
     | '/register'
     | '/withdrawals'
     | '/go/$slug'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/links'
     | '/login'
+    | '/profile'
     | '/register'
     | '/withdrawals'
     | '/go/$slug'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   LinksRoute: typeof LinksRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   WithdrawalsRoute: typeof WithdrawalsRoute
   GoSlugRoute: typeof GoSlugRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LinksRoute: LinksRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   WithdrawalsRoute: WithdrawalsRoute,
   GoSlugRoute: GoSlugRoute,
@@ -229,3 +250,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
