@@ -235,6 +235,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          api_limit_per_minute: number | null
           avatar_url: string | null
           balance: number | null
           created_at: string | null
@@ -242,10 +243,13 @@ export type Database = {
           id: string
           is_admin: boolean | null
           is_verified: boolean | null
+          referral_count: number | null
+          referrer_id: string | null
           total_withdrawn: number | null
           updated_at: string | null
         }
         Insert: {
+          api_limit_per_minute?: number | null
           avatar_url?: string | null
           balance?: number | null
           created_at?: string | null
@@ -253,10 +257,13 @@ export type Database = {
           id: string
           is_admin?: boolean | null
           is_verified?: boolean | null
+          referral_count?: number | null
+          referrer_id?: string | null
           total_withdrawn?: number | null
           updated_at?: string | null
         }
         Update: {
+          api_limit_per_minute?: number | null
           avatar_url?: string | null
           balance?: number | null
           created_at?: string | null
@@ -264,10 +271,94 @@ export type Database = {
           id?: string
           is_admin?: boolean | null
           is_verified?: boolean | null
+          referral_count?: number | null
+          referrer_id?: string | null
           total_withdrawn?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          commission_earned: number | null
+          created_at: string | null
+          id: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          commission_earned?: number | null
+          created_at?: string | null
+          id?: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          commission_earned?: number | null
+          created_at?: string | null
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          last_activity: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          last_activity?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          last_activity?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       settings: {
         Row: {
@@ -310,6 +401,44 @@ export type Database = {
           is_default?: boolean | null
         }
         Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          status: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       visits: {
         Row: {
