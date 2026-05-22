@@ -136,6 +136,7 @@ function AdminPanel() {
           <TabsTrigger value="overview" className="gap-2"><Database className="h-4 w-4" /> Overview</TabsTrigger>
           <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" /> Users</TabsTrigger>
           <TabsTrigger value="withdrawals" className="gap-2"><DollarSign className="h-4 w-4" /> Payouts</TabsTrigger>
+          <TabsTrigger value="ads" className="gap-2"><Plus className="h-4 w-4" /> Anúncios</TabsTrigger>
           <TabsTrigger value="settings" className="gap-2"><Settings className="h-4 w-4" /> Platform</TabsTrigger>
         </TabsList>
 
