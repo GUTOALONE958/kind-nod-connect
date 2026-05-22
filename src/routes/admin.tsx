@@ -294,10 +294,10 @@ function AdminPanel() {
                     <div key={c.id} className="p-4 rounded-xl border bg-background/50 flex items-center justify-between">
                       <div>
                         <p className="font-bold">{c.name}</p>
-                        <p className="text-xs text-muted-foreground">{c.steps_count} Steps • {c.ad_density} Density</p>
+                        <p className="text-xs text-muted-foreground">{c.step_count} Etapas • {c.time_per_step}s por etapa</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-primary">R$ {c.cpm_rate.toFixed(2)} CPM</p>
+                        <p className="font-black text-primary">R$ {c.cpm_value.toFixed(2)} CPM</p>
                         <Button variant="link" size="sm" className="h-auto p-0">Edit</Button>
                       </div>
                     </div>
