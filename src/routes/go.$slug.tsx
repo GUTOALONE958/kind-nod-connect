@@ -39,9 +39,11 @@ function RedirectionPage() {
   const { slug } = useParams({ from: "/go/$slug" });
   const [step, setStep] = useState(1);
   const [totalSteps, setTotalSteps] = useState(0);
+  const [timePerStep, setTimePerStep] = useState(10);
   const [timer, setTimer] = useState(10);
   const [loading, setLoading] = useState(true);
   const [originalUrl, setOriginalUrl] = useState("");
+  const [visitId, setVisitId] = useState<string | null>(null);
   const [isBot, setIsBot] = useState(false);
   const [adScripts, setAdScripts] = useState<any[]>([]);
   
@@ -49,38 +51,44 @@ function RedirectionPage() {
 
   useEffect(() => {
     const init = async () => {
-      // Basic anti-bot check
       if (navigator.webdriver) {
         setIsBot(true);
         setLoading(false);
         return;
       }
 
+      // In a real environment, p_ip should be set by an edge function
       const { data, error } = await supabase.rpc('process_link_visit', {
         p_slug: slug,
-        p_ip: '127.0.0.1', // Real implementation needs edge function for IP
+        p_ip: 'visitor-ip-placeholder', 
         p_user_agent: navigator.userAgent,
-        p_country: 'BR', // Needs GeoIP
+        p_country: 'BR',
         p_device: window.innerWidth < 768 ? 'mobile' : 'desktop',
         p_referrer: document.referrer
       });
 
-      if (error || !data) {
-        toast.error("Invalid link");
+      if (error || !data || (data as any).error) {
+        toast.error("Link inválido ou expirado");
         return;
       }
 
       const result = data as any;
-      if (!result.success) {
-        toast.error("Link expired or inactive");
-        return;
+      setOriginalUrl(result.original_url);
+      setTotalSteps(result.step_count || 1);
+      setVisitId(result.visit_id);
+      
+      // Fetch category-specific timing if available (we could also return it from RPC)
+      // For now, let's assume default or fetch it
+      const { data: linkData } = await supabase.from('links').select('category_id').eq('short_slug', slug).single();
+      if (linkData?.category_id) {
+        const { data: catData } = await supabase.from('categories').select('time_per_step').eq('id', linkData.category_id).single();
+        if (catData) {
+          setTimePerStep(catData.time_per_step);
+          setTimer(catData.time_per_step);
+        }
       }
 
-      setOriginalUrl(result.original_url);
-      setTotalSteps(result.steps_count);
-      
-      // Fetch active ads configuration
-      const { data: ads } = await supabase.from("ads_config").select("*").eq("is_active", true);
+      const { data: ads } = await supabase.from("ads").select("*").eq("is_active", true);
       setAdScripts(ads || []);
       
       setLoading(false);
@@ -96,12 +104,24 @@ function RedirectionPage() {
     }
   }, [loading, isBot, timer]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < totalSteps) {
+      // Register next step view to credit the user
+      if (visitId) {
+        await supabase.rpc('register_step_view', {
+          p_visit_id: visitId,
+          p_step_number: step + 1
+        });
+      }
+      
       setStep(prev => prev + 1);
-      setTimer(10);
-      // In a real app, you'd trigger popunders here
-      toast.info("Preparing next stage...", { duration: 1000 });
+      setTimer(timePerStep);
+      toast.info("Processando próxima etapa...", { duration: 1000 });
+      
+      // Simulação de Popunder
+      if (Math.random() > 0.5) {
+        toast.success("Anúncio visualizado com sucesso!");
+      }
     } else {
       window.location.href = originalUrl;
     }
