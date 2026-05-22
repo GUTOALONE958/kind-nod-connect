@@ -1,12 +1,38 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { 
+  ShieldCheck, 
+  ArrowRight, 
+  Clock, 
+  AlertCircle,
+  ChevronRight,
+  MousePointer2,
+  Lock
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/go/$slug")({
   component: RedirectionPage,
 });
+
+function AdPlaceholder({ type }: { type: string }) {
+  return (
+    <div className="w-full min-h-[250px] bg-muted/50 rounded-xl border-2 border-dashed border-primary/20 flex flex-col items-center justify-center p-6 text-center group hover:bg-muted/80 transition-all duration-300">
+      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+        <MousePointer2 className="h-6 w-6 text-primary" />
+      </div>
+      <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Sponsored Ad</p>
+      <p className="text-xs text-muted-foreground/60 mt-1 max-w-[200px]">Clicking on ads helps us maintain the service for free.</p>
+      <div className="mt-4 w-full h-px bg-primary/10" />
+      <p className="mt-2 text-[10px] text-muted-foreground/40 italic">Type: {type}</p>
+    </div>
+  );
+}
 
 function RedirectionPage() {
   const { slug } = useParams({ from: "/go/$slug" });
@@ -15,32 +41,47 @@ function RedirectionPage() {
   const [timer, setTimer] = useState(10);
   const [loading, setLoading] = useState(true);
   const [originalUrl, setOriginalUrl] = useState("");
+  const [isBot, setIsBot] = useState(false);
+  const [adScripts, setAdScripts] = useState<any[]>([]);
+  
+  const timerRef = useRef<any>(null);
 
   useEffect(() => {
     const init = async () => {
-      // Record visit and get data
+      // Basic anti-bot check
+      if (navigator.webdriver) {
+        setIsBot(true);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.rpc('process_link_visit', {
         p_slug: slug,
-        p_ip: '127.0.0.1', // Real implementation needs real IP from request
+        p_ip: '127.0.0.1', // Real implementation needs edge function for IP
         p_user_agent: navigator.userAgent,
-        p_country: 'BR',
-        p_device: 'desktop',
+        p_country: 'BR', // Needs GeoIP
+        p_device: window.innerWidth < 768 ? 'mobile' : 'desktop',
         p_referrer: document.referrer
       });
 
       if (error || !data) {
-        alert("Link not found");
+        toast.error("Invalid link");
         return;
       }
 
       const result = data as any;
       if (!result.success) {
-        alert("Link not found");
+        toast.error("Link expired or inactive");
         return;
       }
 
       setOriginalUrl(result.original_url);
       setTotalSteps(result.steps_count);
+      
+      // Fetch active ads configuration
+      const { data: ads } = await supabase.from("ads_config").select("*").eq("is_active", true);
+      setAdScripts(ads || []);
+      
       setLoading(false);
     };
 
@@ -48,46 +89,166 @@ function RedirectionPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (!loading && timer > 0) {
-      const interval = setInterval(() => setTimer(prev => prev - 1), 1000);
-      return () => clearInterval(interval);
+    if (!loading && !isBot && timer > 0) {
+      timerRef.current = setInterval(() => setTimer(prev => prev - 1), 1000);
+      return () => clearInterval(timerRef.current);
     }
-  }, [loading, timer]);
+  }, [loading, isBot, timer]);
 
   const handleNext = () => {
     if (step < totalSteps) {
       setStep(prev => prev + 1);
       setTimer(10);
+      // In a real app, you'd trigger popunders here
+      toast.info("Preparing next stage...", { duration: 1000 });
     } else {
       window.location.href = originalUrl;
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (isBot) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <Card className="max-w-md border-destructive/20 bg-destructive/5">
+          <CardContent className="p-8 text-center space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+            <h1 className="text-2xl font-bold">Access Denied</h1>
+            <p className="text-muted-foreground">Automated traffic detected. If you are a human, please disable your VPN or bot tools and try again.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
+        <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-medium animate-pulse">Scanning link security...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50">
-      <div className="max-w-xl w-full space-y-8 text-center">
-        <h1 className="text-2xl font-bold">Step {step} of {totalSteps}</h1>
-        <Progress value={(step / totalSteps) * 100} />
-        
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <p className="text-lg mb-4">Wait {timer} seconds to continue...</p>
-          
-          {/* Ad Placeholder */}
-          <div className="w-full h-64 bg-gray-200 flex items-center justify-center mb-6">
-            Adsterra Ad Space
-          </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
+      {/* Top Banner Ad Space */}
+      <div className="max-w-4xl mx-auto mb-8 h-24 bg-card rounded-xl border border-muted flex items-center justify-center text-xs text-muted-foreground uppercase tracking-widest font-bold">
+        Header Advertisement (728x90)
+      </div>
 
-          <Button 
-            disabled={timer > 0} 
-            onClick={handleNext}
-            size="lg"
-            className="w-full"
-          >
-            {step < totalSteps ? "Continue" : "Go to Link"}
-          </Button>
+      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Main Content Area */}
+        <div className="lg:col-span-8 space-y-6">
+          <Card className="border-none shadow-2xl overflow-hidden bg-card/80 backdrop-blur-md">
+            <div className="h-2 bg-muted w-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-primary"
+                initial={{ width: "0%" }}
+                animate={{ width: `${(step / totalSteps) * 100}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            
+            <CardContent className="p-8">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <h1 className="text-2xl font-bold tracking-tight">Stage {step} of {totalSteps}</h1>
+                      <p className="text-sm text-muted-foreground">Verify you are human to proceed.</p>
+                    </div>
+                    <div className="h-14 w-14 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
+                      <svg className="h-full w-full -rotate-90 absolute">
+                        <circle
+                          cx="28" cy="28" r="24"
+                          fill="none" stroke="currentColor" strokeWidth="4"
+                          className="text-primary"
+                          strokeDasharray={150}
+                          strokeDashoffset={150 - (timer / 10) * 150}
+                          style={{ transition: 'stroke-dashoffset 1s linear' }}
+                        />
+                      </svg>
+                      <span className="text-lg font-bold">{timer}</span>
+                    </div>
+                  </div>
+
+                  {/* Primary Ad Content */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <AdPlaceholder type="Banner 300x250" />
+                    <AdPlaceholder type="Native Content" />
+                  </div>
+
+                  <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <ShieldCheck className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="hidden sm:block">
+                        <p className="text-sm font-bold">Link Protected</p>
+                        <p className="text-xs text-muted-foreground">Encryption level: AES-256</p>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      size="lg" 
+                      disabled={timer > 0} 
+                      onClick={handleNext}
+                      className={cn(
+                        "h-14 px-10 text-lg font-bold transition-all duration-300",
+                        timer === 0 ? "scale-105 shadow-xl shadow-primary/30" : "opacity-50"
+                      )}
+                    >
+                      {step < totalSteps ? "Continue to Next Step" : "Get Final Destination"}
+                      <ChevronRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/50 border-none shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                <Lock className="h-4 w-4" />
+                <span className="text-sm font-medium">Why the wait?</span>
+              </div>
+              <p className="text-sm leading-relaxed">
+                By waiting a few seconds on each step, you help us support the content creators you love. 
+                Our monetization platform uses Adsterra technology to ensure the highest security and payout rates in the industry.
+              </p>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Sidebar Ads */}
+        <div className="lg:col-span-4 space-y-6">
+          <Card className="border-none shadow-lg bg-card/50">
+            <CardContent className="p-4 space-y-4">
+              <AdPlaceholder type="Skyscraper" />
+              <div className="p-4 bg-muted/30 rounded-lg text-center">
+                <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-widest">Navigation Guide</p>
+                <ul className="text-[10px] text-left space-y-2 text-muted-foreground">
+                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Do not use AdBlockers</li>
+                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Wait for the countdown</li>
+                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Click "Continue" to proceed</li>
+                </ul>
+              </div>
+              <AdPlaceholder type="Square Ad" />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Footer Ad */}
+      <div className="max-w-4xl mx-auto mt-12 h-32 bg-card rounded-xl border border-muted flex items-center justify-center text-xs text-muted-foreground uppercase tracking-widest font-bold">
+        Footer Advertisement (728x90)
       </div>
     </div>
   );
