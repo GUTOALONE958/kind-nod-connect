@@ -47,7 +47,11 @@ function LinksPage() {
     
     const { data, error } = await supabase
       .from("links")
-      .select("*, categories!links_category_id_fkey(name), subdomains!links_subdomain_id_fkey(domain)")
+      .select(`
+        *,
+        categories:category_id(name),
+        subdomains:subdomain_id(domain)
+      `)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
