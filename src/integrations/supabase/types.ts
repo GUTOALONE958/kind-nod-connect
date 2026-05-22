@@ -635,6 +635,10 @@ export type Database = {
         }
         Returns: Json
       }
+      register_step_view: {
+        Args: { p_step_number: number; p_visit_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
