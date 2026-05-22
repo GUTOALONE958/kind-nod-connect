@@ -282,6 +282,38 @@ function AdminPanel() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="ads">
+          <Card className="border-none shadow-md bg-card/50">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Ad Management (Adsterra)</CardTitle>
+                <CardDescription>Configure Popunders, Social Bars and Banners.</CardDescription>
+              </div>
+              <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Ad Script</Button>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {ads.map((ad) => (
+                  <div key={ad.id} className="p-4 rounded-xl border bg-background/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="uppercase">{ad.type}</Badge>
+                      <Badge variant={ad.is_active ? "default" : "secondary"}>{ad.is_active ? 'Active' : 'Inactive'}</Badge>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold">{ad.provider}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono truncate">{ad.script_code || ad.placement_id}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1">Edit</Button>
+                      <Button size="sm" variant="ghost" className="text-destructive">Delete</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="settings" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Categories Management */}
