@@ -267,20 +267,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_links_category"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_links_subdomain"
-            columns: ["subdomain_id"]
-            isOneToOne: false
-            referencedRelation: "subdomains"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "links_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
@@ -645,6 +631,7 @@ export type Database = {
         Args: { amount: number; user_id: string }
         Returns: undefined
       }
+      is_admin: { Args: never; Returns: boolean }
       process_link_visit: {
         Args: {
           p_country: string
