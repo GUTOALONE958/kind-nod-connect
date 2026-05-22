@@ -27,7 +27,8 @@ import {
   Link as LinkIcon,
   Plus,
   ArrowUpRight,
-  Clock
+  Clock,
+  Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
