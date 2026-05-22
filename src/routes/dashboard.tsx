@@ -34,6 +34,13 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 const data = [
   { name: "Mon", visits: 400, earnings: 2.4 },
