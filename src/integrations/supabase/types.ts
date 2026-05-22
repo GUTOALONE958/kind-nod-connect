@@ -428,6 +428,17 @@ export type Database = {
         Args: { amount: number; user_id: string }
         Returns: undefined
       }
+      process_link_visit: {
+        Args: {
+          p_country: string
+          p_device: string
+          p_ip: string
+          p_referrer: string
+          p_slug: string
+          p_user_agent: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
