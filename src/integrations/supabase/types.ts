@@ -461,13 +461,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_subdomains_category"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "subdomains_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
