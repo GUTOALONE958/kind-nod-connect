@@ -61,7 +61,7 @@ function AdminPanel() {
     const [u, w, c, s] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("withdrawals").select("*, profiles(display_name)").order("created_at", { ascending: false }),
-      supabase.from("categories").select("*").order("cpm_rate", { ascending: true }),
+      supabase.from("categories").select("*").order("cpm_value", { ascending: true }),
       supabase.from("subdomains").select("*").order("created_at", { ascending: false })
     ]);
 
