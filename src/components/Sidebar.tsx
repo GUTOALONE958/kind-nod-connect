@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   Menu,
   X,
-  User
+  User,
+  Terminal
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,10 @@ export const Sidebar = ({ className }: SidebarProps) => {
     { icon: Users, label: "Referrals", href: "/referrals" },
     { icon: User, label: "Profile", href: "/profile" },
   ];
+
+  if (profile?.is_verified) {
+    menuItems.push({ icon: Terminal, label: "Private API", href: "/api-docs" });
+  }
 
   if (profile?.is_admin) {
     menuItems.push({ icon: ShieldCheck, label: "Admin Panel", href: "/admin" });

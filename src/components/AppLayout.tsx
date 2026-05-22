@@ -2,15 +2,18 @@ import React from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useAuth } from "@/context/AuthContext";
 import { useLocation } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  const isPublicPage = ["/", "/login", "/register", "/go/"].some(path => location.pathname.startsWith(path)) && location.pathname !== "/dashboard" && !location.pathname.startsWith("/admin");
+  // Public pages that shouldn't show the sidebar
+  const publicRoutes = ["/login", "/register", "/go/"];
+  const isHomePage = location.pathname === "/";
+  const isPublicRoute = publicRoutes.some(path => location.pathname.startsWith(path));
   
-  // Dashboard, Admin, Profile etc. are private
-  const showSidebar = user && !isPublicPage;
+  const showSidebar = user && !isHomePage && !isPublicRoute;
 
   if (loading) {
     return (
@@ -23,11 +26,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   return (
     <div className="flex min-h-screen bg-background text-foreground transition-colors duration-300">
       {showSidebar && <Sidebar className="hidden lg:flex" />}
-      <main className={cn("flex-1 overflow-y-auto", showSidebar ? "lg:p-8 p-4" : "")}>
+      <main className={cn("flex-1 overflow-y-auto w-full", showSidebar ? "lg:p-8 p-4" : "")}>
         {children}
       </main>
     </div>
   );
 };
-
-import { cn } from "@/lib/utils";

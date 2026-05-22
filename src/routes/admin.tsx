@@ -49,6 +49,7 @@ function AdminPanel() {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subdomains, setSubdomains] = useState<any[]>([]);
+  const [ads, setAds] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
@@ -58,17 +59,20 @@ function AdminPanel() {
   }, [profile]);
 
   const fetchAllData = async () => {
-    const [u, w, c, s] = await Promise.all([
+    const [u, w, c, s, a] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("withdrawals").select("*, profiles(display_name)").order("created_at", { ascending: false }),
-      supabase.from("categories").select("*").order("cpm_rate", { ascending: true }),
-      supabase.from("subdomains").select("*").order("created_at", { ascending: false })
+      supabase.from("categories").select("*").order("cpm_value", { ascending: true }),
+      supabase.from("subdomains").select("*").order("created_at", { ascending: false }),
+      // @ts-ignore
+      supabase.from("ads").select("*").order("created_at", { ascending: false })
     ]);
 
     setUsers(u.data || []);
     setWithdrawals(w.data || []);
     setCategories(c.data || []);
     setSubdomains(s.data || []);
+    setAds(a.data || []);
   };
 
   const approveWithdrawal = async (id: string, userId: string, amount: number) => {
@@ -132,6 +136,7 @@ function AdminPanel() {
           <TabsTrigger value="overview" className="gap-2"><Database className="h-4 w-4" /> Overview</TabsTrigger>
           <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" /> Users</TabsTrigger>
           <TabsTrigger value="withdrawals" className="gap-2"><DollarSign className="h-4 w-4" /> Payouts</TabsTrigger>
+          <TabsTrigger value="ads" className="gap-2"><Plus className="h-4 w-4" /> Anúncios</TabsTrigger>
           <TabsTrigger value="settings" className="gap-2"><Settings className="h-4 w-4" /> Platform</TabsTrigger>
         </TabsList>
 
@@ -277,6 +282,38 @@ function AdminPanel() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="ads">
+          <Card className="border-none shadow-md bg-card/50">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Ad Management (Adsterra)</CardTitle>
+                <CardDescription>Configure Popunders, Social Bars and Banners.</CardDescription>
+              </div>
+              <Button size="sm" className="gap-2"><Plus className="h-4 w-4" /> Add Ad Script</Button>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {ads.map((ad) => (
+                  <div key={ad.id} className="p-4 rounded-xl border bg-background/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="uppercase">{ad.type}</Badge>
+                      <Badge variant={ad.is_active ? "default" : "secondary"}>{ad.is_active ? 'Active' : 'Inactive'}</Badge>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold">{ad.provider}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono truncate">{ad.script_code || ad.placement_id}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1">Edit</Button>
+                      <Button size="sm" variant="ghost" className="text-destructive">Delete</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="settings" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Categories Management */}
@@ -294,10 +331,10 @@ function AdminPanel() {
                     <div key={c.id} className="p-4 rounded-xl border bg-background/50 flex items-center justify-between">
                       <div>
                         <p className="font-bold">{c.name}</p>
-                        <p className="text-xs text-muted-foreground">{c.steps_count} Steps • {c.ad_density} Density</p>
+                        <p className="text-xs text-muted-foreground">{c.step_count} Etapas • {c.time_per_step}s por etapa</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-primary">R$ {c.cpm_rate.toFixed(2)} CPM</p>
+                        <p className="font-black text-primary">R$ {c.cpm_value.toFixed(2)} CPM</p>
                         <Button variant="link" size="sm" className="h-auto p-0">Edit</Button>
                       </div>
                     </div>

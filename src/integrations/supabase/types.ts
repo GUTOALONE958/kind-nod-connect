@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_logs: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          target_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_logs_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ads_config: {
         Row: {
           ad_type: string | null
@@ -82,30 +117,42 @@ export type Database = {
       categories: {
         Row: {
           ad_density: string | null
-          cpm_rate: number
+          ads_per_page: number | null
+          cpm_value: number
           created_at: string | null
+          description: string | null
           id: string
           is_active: boolean | null
           name: string
-          steps_count: number
+          step_count: number
+          time_per_step: number | null
+          updated_at: string | null
         }
         Insert: {
           ad_density?: string | null
-          cpm_rate?: number
+          ads_per_page?: number | null
+          cpm_value?: number
           created_at?: string | null
+          description?: string | null
           id?: string
           is_active?: boolean | null
           name: string
-          steps_count?: number
+          step_count?: number
+          time_per_step?: number | null
+          updated_at?: string | null
         }
         Update: {
           ad_density?: string | null
-          cpm_rate?: number
+          ads_per_page?: number | null
+          cpm_value?: number
           created_at?: string | null
+          description?: string | null
           id?: string
           is_active?: boolean | null
           name?: string
-          steps_count?: number
+          step_count?: number
+          time_per_step?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -161,9 +208,12 @@ export type Database = {
           expires_at: string | null
           id: string
           is_active: boolean | null
+          is_premium: boolean | null
           is_private: boolean | null
           original_url: string
           password: string | null
+          password_hash: string | null
+          settings: Json | null
           short_slug: string
           subdomain_id: string | null
           title: string | null
@@ -179,9 +229,12 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
+          is_premium?: boolean | null
           is_private?: boolean | null
           original_url: string
           password?: string | null
+          password_hash?: string | null
+          settings?: Json | null
           short_slug: string
           subdomain_id?: string | null
           title?: string | null
@@ -197,9 +250,12 @@ export type Database = {
           expires_at?: string | null
           id?: string
           is_active?: boolean | null
+          is_premium?: boolean | null
           is_private?: boolean | null
           original_url?: string
           password?: string | null
+          password_hash?: string | null
+          settings?: Json | null
           short_slug?: string
           subdomain_id?: string | null
           title?: string | null
@@ -380,6 +436,7 @@ export type Database = {
       }
       subdomains: {
         Row: {
+          category_id: string | null
           created_at: string | null
           domain: string
           id: string
@@ -387,6 +444,7 @@ export type Database = {
           is_default: boolean | null
         }
         Insert: {
+          category_id?: string | null
           created_at?: string | null
           domain: string
           id?: string
@@ -394,13 +452,22 @@ export type Database = {
           is_default?: boolean | null
         }
         Update: {
+          category_id?: string | null
           created_at?: string | null
           domain?: string
           id?: string
           is_active?: boolean | null
           is_default?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subdomains_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -566,6 +633,10 @@ export type Database = {
           p_slug: string
           p_user_agent: string
         }
+        Returns: Json
+      }
+      register_step_view: {
+        Args: { p_step_number: number; p_visit_id: string }
         Returns: Json
       }
     }
