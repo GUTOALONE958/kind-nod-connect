@@ -267,6 +267,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_links_category"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_links_subdomain"
+            columns: ["subdomain_id"]
+            isOneToOne: false
+            referencedRelation: "subdomains"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "links_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
@@ -460,6 +474,13 @@ export type Database = {
           is_default?: boolean | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_subdomains_category"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subdomains_category_id_fkey"
             columns: ["category_id"]
