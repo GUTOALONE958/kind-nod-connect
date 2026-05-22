@@ -44,7 +44,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPanel() {
-  const { profile, loading } = useAuth();
+  const { profile, loading, user } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -140,7 +140,7 @@ function AdminPanel() {
   };
 
   if (loading) return null;
-  if (!profile?.is_admin) return (
+  if (!profile?.is_admin || user?.email !== 'sjoseoliveira98@gmail.com') return (
     <div className="h-screen flex items-center justify-center p-8 text-center">
       <div className="max-w-md space-y-4">
         <XCircle className="h-16 w-16 text-destructive mx-auto" />
