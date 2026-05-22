@@ -53,11 +53,18 @@ function LandingPage() {
             </div>
             <div className="flex items-center gap-4">
               {user ? (
-                <Button onClick={() => navigate({ to: "/dashboard" })}>Dashboard</Button>
+                <div className="flex items-center gap-3">
+                  {profile?.is_admin && (
+                    <Button variant="outline" onClick={() => navigate({ to: "/admin" })} className="border-primary text-primary hover:bg-primary/10">
+                      Painel Admin
+                    </Button>
+                  )}
+                  <Button onClick={() => navigate({ to: "/dashboard" })}>Meu Dashboard</Button>
+                </div>
               ) : (
                 <>
-                  <Link to="/login" className="text-sm font-medium hover:text-primary transition-colors">Login</Link>
-                  <Button onClick={() => navigate({ to: "/register" })}>Join Now</Button>
+                  <Link to="/login" className="text-lg font-bold text-primary hover:underline transition-colors px-4">Login</Link>
+                  <Button size="lg" onClick={() => navigate({ to: "/register" })} className="font-bold text-lg">Criar Conta Grátis</Button>
                 </>
               )}
             </div>
