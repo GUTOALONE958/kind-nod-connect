@@ -94,7 +94,23 @@ function RedirectionPage() {
       setAdScripts(ads || []);
       
       setLoading(false);
-    };
+  };
+
+  useEffect(() => {
+    if (adScripts.length > 0) {
+      adScripts.forEach(ad => {
+        if (ad.script_code && ad.is_active) {
+          try {
+            const script = document.createElement('script');
+            script.innerHTML = ad.script_code;
+            document.body.appendChild(script);
+          } catch (e) {
+            console.error("Error injecting ad script", e);
+          }
+        }
+      });
+    }
+  }, [adScripts]);
 
     init();
   }, [slug]);
