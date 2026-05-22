@@ -173,22 +173,55 @@ function Dashboard() {
       </div>
 
       {/* Shorten Box */}
-      <Card className="bg-primary/5 border-primary/20">
+      <Card className="bg-primary/5 border-primary/20 shadow-lg">
         <CardContent className="p-6">
-          <form onSubmit={handleShorten} className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                id="shorten-input"
-                placeholder="Paste your long URL here..." 
-                className="pl-10 h-12 bg-background border-primary/20"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
+          <form onSubmit={handleShorten} className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="shorten-input"
+                  placeholder="Cole sua URL longa aqui..." 
+                  className="pl-10 h-12 bg-background border-primary/20"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                />
+              </div>
+              <Button size="lg" className="h-12 px-8" type="submit" disabled={isShortening}>
+                {isShortening ? "Encurtando..." : "Encurtar Agora"}
+              </Button>
             </div>
-            <Button size="lg" className="h-12 px-8" type="submit" disabled={isShortening}>
-              {isShortening ? "Shortening..." : "Shorten Now"}
-            </Button>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Domínio / Subdomínio</label>
+                <Select value={selectedSubdomain} onValueChange={setSelectedSubdomain}>
+                  <SelectTrigger className="bg-background border-primary/10">
+                    <SelectValue placeholder="Selecione o domínio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subdomains.map(s => (
+                      <SelectItem key={s.id} value={s.id}>{s.name}.{s.domain}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Categoria de Ganhos</label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="bg-background border-primary/10">
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(c => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name} (CPM R$ {c.cpm_value.toFixed(2)})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </form>
         </CardContent>
       </Card>
