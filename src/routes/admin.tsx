@@ -59,17 +59,19 @@ function AdminPanel() {
   }, [profile]);
 
   const fetchAllData = async () => {
-    const [u, w, c, s] = await Promise.all([
+    const [u, w, c, s, a] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("withdrawals").select("*, profiles(display_name)").order("created_at", { ascending: false }),
       supabase.from("categories").select("*").order("cpm_value", { ascending: true }),
-      supabase.from("subdomains").select("*").order("created_at", { ascending: false })
+      supabase.from("subdomains").select("*").order("created_at", { ascending: false }),
+      supabase.from("ads").select("*").order("created_at", { ascending: false })
     ]);
 
     setUsers(u.data || []);
     setWithdrawals(w.data || []);
     setCategories(c.data || []);
     setSubdomains(s.data || []);
+    setAds(a.data || []);
   };
 
   const approveWithdrawal = async (id: string, userId: string, amount: number) => {
