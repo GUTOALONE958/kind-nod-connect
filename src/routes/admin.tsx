@@ -49,6 +49,7 @@ function AdminPanel() {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [subdomains, setSubdomains] = useState<any[]>([]);
+  const [ads, setAds] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
