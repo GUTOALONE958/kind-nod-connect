@@ -92,12 +92,12 @@ function LandingPage() {
               The highest CPM in the market. Advanced analytics, secure payments, and a premium experience for your audience.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button size="lg" className="h-12 px-8 text-lg font-semibold shadow-lg shadow-primary/20" onClick={() => navigate({ to: "/register" })}>
-                Get Started for Free
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button size="lg" className="h-16 px-12 text-2xl font-black shadow-xl shadow-primary/30 animate-bounce" onClick={() => navigate({ to: "/register" })}>
+                CRIAR MINHA CONTA AGORA
+                <ArrowRight className="ml-2 h-6 w-6" />
               </Button>
-              <Button size="lg" variant="outline" className="h-12 px-8 text-lg font-semibold" onClick={() => navigate({ to: "/api-docs" })}>
-                View API Docs
+              <Button size="lg" variant="outline" className="h-16 px-12 text-xl font-bold border-2" onClick={() => navigate({ to: "/login" })}>
+                ACESSAR MINHA CONTA
               </Button>
             </div>
           </motion.div>
