@@ -62,8 +62,7 @@ function WithdrawalsPage() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Withdrawals fetch error:", error);
-      toast.error("Erro ao carregar saques: " + error.message);
+      toast.error("Failed to fetch withdrawals");
     } else {
       setWithdrawals(data || []);
     }

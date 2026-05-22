@@ -41,6 +41,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const data = [
   { name: "Mon", visits: 0, earnings: 0 },
@@ -89,48 +90,30 @@ function Dashboard() {
   const fetchData = async () => {
     if (!user) return;
     
-    try {
-      // Fetch categories
-      const { data: catRes, error: catErr } = await supabase.from('categories').select('*').eq('is_active', true);
-      if (catErr) console.error("Error fetching categories:", catErr);
-      setCategories(catRes || []);
-      if (catRes?.length && !selectedCategory) setSelectedCategory(catRes[0].id);
+    // Fetch categories
+    const { data: catRes } = await supabase.from('categories').select('*').eq('is_active', true);
+    setCategories(catRes || []);
+    if (catRes?.length && !selectedCategory) setSelectedCategory(catRes[0].id);
 
-      // Fetch recent links
-      const { data: linksRes, error: linksErr } = await supabase
-        .from('links')
-        .select('*, subdomains(domain)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-      
-      if (linksErr) {
-        console.error("Dashboard links fetch error:", linksErr);
-        // Fallback to simple select
-        const { data: fallbackLinks } = await supabase
-          .from('links')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(5);
-        setRecentLinks(fallbackLinks || []);
-      } else {
-        setRecentLinks(linksRes || []);
-      }
+    // Fetch recent links
+    const { data: linksRes } = await supabase
+      .from('links')
+      .select('*, subdomains(domain)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    setRecentLinks(linksRes || []);
 
-      // Fetch stats
-      const { count: linkCount } = await supabase.from('links').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
-      const { data: clickData } = await supabase.from('links').select('total_clicks').eq('user_id', user.id);
-      const totalClicks = clickData?.reduce((acc, curr) => acc + Number(curr.total_clicks || 0), 0) || 0;
-      
-      setStats({
-        clicks: totalClicks,
-        links: linkCount || 0,
-        ecpm: 0
-      });
-    } catch (err) {
-      console.error("Dashboard fetchData error:", err);
-    }
+    // Fetch stats
+    const { count: linkCount } = await supabase.from('links').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+    const { data: clickData } = await supabase.from('links').select('total_clicks').eq('user_id', user.id);
+    const totalClicks = clickData?.reduce((acc, curr) => acc + Number(curr.total_clicks || 0), 0) || 0;
+    
+    setStats({
+      clicks: totalClicks,
+      links: linkCount || 0,
+      ecpm: 0 // Will implement later with real tracking
+    });
   };
 
   useEffect(() => {
@@ -161,7 +144,7 @@ function Dashboard() {
       if (error) throw error;
       toast.success("Link encurtado com sucesso!");
       setUrl("");
-      fetchData();
+      fetchData(); // Refresh list
     } catch (err: any) {
       toast.error(err.message);
     } finally {

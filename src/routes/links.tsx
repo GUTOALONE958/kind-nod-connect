@@ -52,8 +52,7 @@ function LinksPage() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Links fetch error:", error);
-      toast.error("Erro ao buscar links: " + error.message);
+      toast.error("Erro ao buscar links");
     } else {
       setLinks(data || []);
     }
