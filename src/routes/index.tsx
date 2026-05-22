@@ -1,26 +1,42 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/")({
-  component: Index,
-});
+export default function Index() {
+  const { user } = useAuth();
+  const [url, setUrl] = useState("");
+  const navigate = useNavigate();
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+  const handleShorten = async () => {
+    if (!user) return navigate({ to: "/login" });
+    
+    const slug = Math.random().toString(36).substring(7);
+    const { data, error } = await supabase.from("links").insert({
+      user_id: user.id,
+      original_url: url,
+      short_slug: slug,
+    });
+    
+    if (error) alert(error.message);
+    else alert("Link created: " + slug);
+  };
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <h1 className="text-4xl font-bold mb-8">Premium Link Shortener</h1>
+      <input 
+        value={url} 
+        onChange={(e) => setUrl(e.target.value)}
+        className="border p-2 rounded mb-4 w-full max-w-md"
+        placeholder="Enter URL to shorten"
       />
+      <button 
+        onClick={handleShorten}
+        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+      >
+        Shorten
+      </button>
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
