@@ -10,15 +10,13 @@ import {
   CardDescription
 } from "@/components/ui/card";
 import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
   ResponsiveContainer,
   AreaChart,
-  Area
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip
 } from "recharts";
 import { 
   TrendingUp, 
@@ -28,7 +26,9 @@ import {
   Plus,
   ArrowUpRight,
   Clock,
-  Globe
+  Globe,
+  Copy,
+  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/utils";
@@ -41,6 +41,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const data = [
   { name: "Mon", visits: 0, earnings: 0 },
@@ -81,17 +82,43 @@ function Dashboard() {
   const [url, setUrl] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [categories, setCategories] = useState<any[]>([]);
+  const [recentLinks, setRecentLinks] = useState<any[]>([]);
+  const [stats, setStats] = useState({ clicks: 0, links: 0, ecpm: 0 });
   const [isShortening, setIsShortening] = useState(false);
   const navigate = useNavigate();
 
+  const fetchData = async () => {
+    if (!user) return;
+    
+    // Fetch categories
+    const { data: catRes } = await supabase.from('categories').select('*').eq('is_active', true);
+    setCategories(catRes || []);
+    if (catRes?.length && !selectedCategory) setSelectedCategory(catRes[0].id);
+
+    // Fetch recent links
+    const { data: linksRes } = await supabase
+      .from('links')
+      .select('*, subdomains(domain)')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
+    setRecentLinks(linksRes || []);
+
+    // Fetch stats
+    const { count: linkCount } = await supabase.from('links').select('*', { count: 'exact', head: true }).eq('user_id', user.id);
+    const { data: clickData } = await supabase.from('links').select('total_clicks').eq('user_id', user.id);
+    const totalClicks = clickData?.reduce((acc, curr) => acc + Number(curr.total_clicks || 0), 0) || 0;
+    
+    setStats({
+      clicks: totalClicks,
+      links: linkCount || 0,
+      ecpm: 0 // Will implement later with real tracking
+    });
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const { data: catRes } = await supabase.from('categories').select('*').eq('is_active', true);
-      setCategories(catRes || []);
-      if (catRes?.length) setSelectedCategory(catRes[0].id);
-    };
     fetchData();
-  }, []);
+  }, [user]);
 
   const handleShorten = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +127,6 @@ function Dashboard() {
 
     setIsShortening(true);
     try {
-      // Get default subdomain automatically
       const { data: subRes } = await supabase.from('subdomains').select('id').eq('is_default', true).limit(1).maybeSingle();
       
       const slug = Math.random().toString(36).substring(2, 9);
@@ -118,11 +144,17 @@ function Dashboard() {
       if (error) throw error;
       toast.success("Link encurtado com sucesso!");
       setUrl("");
+      fetchData(); // Refresh list
     } catch (err: any) {
       toast.error(err.message);
     } finally {
       setIsShortening(false);
     }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Link copiado!");
   };
 
   if (loading) return null;
@@ -131,14 +163,14 @@ function Dashboard() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, {profile?.display_name || "User"}!</h1>
-          <p className="text-muted-foreground">Here's what's happening with your links today.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Bem-vindo, {profile?.display_name || "Usuário"}!</h1>
+          <p className="text-muted-foreground">Veja o desempenho dos seus links hoje.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={() => navigate({ to: "/links" })}>View All Links</Button>
+          <Button variant="outline" onClick={() => navigate({ to: "/links" })}>Ver Todos os Links</Button>
           <Button onClick={() => document.getElementById('shorten-input')?.focus()}>
             <Plus className="h-4 w-4 mr-2" />
-            New Link
+            Novo Link
           </Button>
         </div>
       </div>
@@ -146,30 +178,30 @@ function Dashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
-          title="Current Balance" 
+          title="Saldo Atual" 
           value={formatCurrency(profile?.balance || 0)} 
           icon={DollarSign} 
-          description="Available for withdrawal"
+          description="Disponível para saque"
           trend="0%"
         />
         <StatCard 
-          title="Total Clicks" 
-          value="0" 
+          title="Total de Cliques" 
+          value={stats.clicks.toLocaleString()} 
           icon={MousePointer2} 
-          description="Clicks this month"
+          description="Cliques este mês"
           trend="0%"
         />
         <StatCard 
-          title="Average eCPM" 
-          value="R$ 0.00" 
+          title="Média eCPM" 
+          value={formatCurrency(stats.ecpm)} 
           icon={TrendingUp} 
-          description="Performance across all links"
+          description="Performance global"
         />
         <StatCard 
-          title="Active Links" 
-          value="0" 
+          title="Links Ativos" 
+          value={stats.links.toString()} 
           icon={LinkIcon} 
-          description="Total links generating revenue"
+          description="Links gerando receita"
         />
       </div>
 
@@ -218,8 +250,8 @@ function Dashboard() {
         {/* Chart */}
         <Card className="lg:col-span-2 border-none shadow-md bg-card/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Earnings Overview</CardTitle>
-            <CardDescription>Daily revenue performance for the last 7 days.</CardDescription>
+            <CardTitle>Visão Geral de Ganhos</CardTitle>
+            <CardDescription>Desempenho diário nos últimos 7 dias.</CardDescription>
           </CardHeader>
           <CardContent className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -246,15 +278,39 @@ function Dashboard() {
         {/* Recent Activity */}
         <Card className="border-none shadow-md bg-card/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle>Recent Visits</CardTitle>
-            <CardDescription>Latest clicks across your links.</CardDescription>
+            <CardTitle>Links Recentes</CardTitle>
+            <CardDescription>Seus últimos links encurtados.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Globe className="h-8 w-8 text-muted-foreground mb-2 opacity-20" />
-                <p className="text-sm text-muted-foreground">Nenhuma visita recente</p>
-              </div>
+            <div className="space-y-4">
+              {recentLinks.length > 0 ? (
+                recentLinks.map((link) => {
+                  const fullUrl = `${link.subdomains?.domain || 'go.alphalink.com'}/go/${link.short_slug}`;
+                  return (
+                    <div key={link.id} className="p-3 rounded-lg border bg-background/50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-primary truncate max-w-[150px]">{link.short_slug}</span>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(fullUrl)}>
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" asChild>
+                            <a href={`http://${fullUrl}`} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground truncate">{link.original_url}</p>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <Globe className="h-8 w-8 text-muted-foreground mb-2 opacity-20" />
+                  <p className="text-sm text-muted-foreground">Nenhum link recente</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
