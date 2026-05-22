@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   Menu,
   X,
-  User
+  User,
+  Terminal
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
