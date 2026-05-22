@@ -131,7 +131,7 @@ function LinksPage() {
               <TableBody>
                 {filteredLinks.length > 0 ? (
                   filteredLinks.map((link) => {
-                    const fullLink = `${link.subdomains?.domain || 'go.alphalink.com'}/go/${link.short_slug}`;
+                    const fullLink = `${window.location.origin}/go/${link.short_slug}`;
                     return (
                       <TableRow key={link.id} className="hover:bg-muted/30 transition-colors">
                         <TableCell className="font-medium">
@@ -160,7 +160,7 @@ function LinksPage() {
                               <Copy className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="icon" asChild>
-                              <a href={`http://${fullLink}`} target="_blank" rel="noopener noreferrer">
+                              <a href={fullLink} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="h-4 w-4" />
                               </a>
                             </Button>

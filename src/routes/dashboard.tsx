@@ -285,7 +285,7 @@ function Dashboard() {
             <div className="space-y-4">
               {recentLinks.length > 0 ? (
                 recentLinks.map((link) => {
-                  const fullUrl = `${link.subdomains?.domain || 'go.alphalink.com'}/go/${link.short_slug}`;
+                  const fullUrl = `${window.location.origin}/go/${link.short_slug}`;
                   return (
                     <div key={link.id} className="p-3 rounded-lg border bg-background/50 space-y-2">
                       <div className="flex items-center justify-between">
@@ -295,7 +295,7 @@ function Dashboard() {
                             <Copy className="h-3 w-3" />
                           </Button>
                           <Button variant="ghost" size="icon" className="h-6 w-6" asChild>
-                            <a href={`http://${fullUrl}`} target="_blank" rel="noopener noreferrer">
+                            <a href={fullUrl} target="_blank" rel="noopener noreferrer">
                               <ExternalLink className="h-3 w-3" />
                             </a>
                           </Button>
