@@ -80,27 +80,15 @@ function Dashboard() {
   const { profile, loading, user } = useAuth();
   const [url, setUrl] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedSubdomain, setSelectedSubdomain] = useState("");
   const [categories, setCategories] = useState<any[]>([]);
-  const [subdomains, setSubdomains] = useState<any[]>([]);
   const [isShortening, setIsShortening] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
-      const [catRes, subRes] = await Promise.all([
-        supabase.from('categories').select('*').eq('is_active', true),
-        supabase.from('subdomains').select('*').eq('is_active', true)
-      ]);
-      
-      setCategories(catRes.data || []);
-      setSubdomains(subRes.data || []);
-      
-      if (catRes.data?.length) setSelectedCategory(catRes.data[0].id);
-      if (subRes.data?.length) {
-        const def = subRes.data.find(s => s.is_default) || subRes.data[0];
-        setSelectedSubdomain(def.id);
-      }
+      const { data: catRes } = await supabase.from('categories').select('*').eq('is_active', true);
+      setCategories(catRes || []);
+      if (catRes?.length) setSelectedCategory(catRes[0].id);
     };
     fetchData();
   }, []);
@@ -112,12 +100,15 @@ function Dashboard() {
 
     setIsShortening(true);
     try {
+      // Get default subdomain automatically
+      const { data: subRes } = await supabase.from('subdomains').select('id').eq('is_default', true).single();
+      
       const slug = Math.random().toString(36).substring(2, 9);
       const { error } = await supabase.from("links").insert({
         user_id: user.id,
         original_url: url,
         short_slug: slug,
-        subdomain_id: selectedSubdomain,
+        subdomain_id: subRes?.id,
         category_id: selectedCategory
       });
 
