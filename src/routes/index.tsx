@@ -36,7 +36,7 @@ function FeatureCard({ icon: Icon, title, description }: { icon: any, title: str
 }
 
 function LandingPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   return (
