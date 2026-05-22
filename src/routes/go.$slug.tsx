@@ -82,12 +82,13 @@ function RedirectionPage() {
       const { data: linkData } = await supabase.from('links').select('category_id').eq('short_slug', slug).single();
       if (linkData?.category_id) {
         const { data: catData } = await supabase.from('categories').select('time_per_step').eq('id', linkData.category_id).single();
-        if (catData) {
+        if (catData && catData.time_per_step) {
           setTimePerStep(catData.time_per_step);
           setTimer(catData.time_per_step);
         }
       }
 
+      // @ts-ignore
       const { data: ads } = await supabase.from("ads").select("*").eq("is_active", true);
       setAdScripts(ads || []);
       
