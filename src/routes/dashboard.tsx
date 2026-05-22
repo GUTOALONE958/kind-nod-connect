@@ -72,30 +72,50 @@ function StatCard({ title, value, icon: Icon, description, trend }: { title: str
 function Dashboard() {
   const { profile, loading, user } = useAuth();
   const [url, setUrl] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubdomain, setSelectedSubdomain] = useState("");
+  const [categories, setCategories] = useState<any[]>([]);
+  const [subdomains, setSubdomains] = useState<any[]>([]);
   const [isShortening, setIsShortening] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [catRes, subRes] = await Promise.all([
+        supabase.from('categories').select('*').eq('is_active', true),
+        supabase.from('subdomains').select('*').eq('is_active', true)
+      ]);
+      
+      setCategories(catRes.data || []);
+      setSubdomains(subRes.data || []);
+      
+      if (catRes.data?.length) setSelectedCategory(catRes.data[0].id);
+      if (subRes.data?.length) {
+        const def = subRes.data.find(s => s.is_default) || subRes.data[0];
+        setSelectedSubdomain(def.id);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleShorten = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!url) return toast.error("Please enter a URL");
+    if (!url) return toast.error("Por favor, insira uma URL");
 
     setIsShortening(true);
     try {
-      const { data: sub } = await supabase.from("subdomains").select("id").eq("is_default", true).single();
-      const { data: cat } = await supabase.from("categories").select("id").eq("name", "Easy").single();
-      
       const slug = Math.random().toString(36).substring(2, 9);
       const { error } = await supabase.from("links").insert({
         user_id: user.id,
         original_url: url,
         short_slug: slug,
-        subdomain_id: sub?.id,
-        category_id: cat?.id
+        subdomain_id: selectedSubdomain,
+        category_id: selectedCategory
       });
 
       if (error) throw error;
-      toast.success("Link shortened successfully!");
+      toast.success("Link encurtado com sucesso!");
       setUrl("");
     } catch (err: any) {
       toast.error(err.message);
