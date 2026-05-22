@@ -84,8 +84,7 @@ function RedirectionPage() {
       }
     }
 
-    // @ts-ignore
-    const { data: ads } = await supabase.from("ads").select("*").eq("is_active", true);
+    const { data: ads } = await supabase.from("ads_config").select("*").eq("is_active", true);
     setAdScripts(ads || []);
     
     setLoading(false);
