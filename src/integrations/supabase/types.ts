@@ -420,7 +420,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_link_stats: {
+        Args: { link_id: string; revenue_inc: number; unique_inc: number }
+        Returns: undefined
+      }
+      increment_user_balance: {
+        Args: { amount: number; user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
