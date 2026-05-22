@@ -14,7 +14,407 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ads_config: {
+        Row: {
+          ad_type: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          provider: string | null
+          script_code: string | null
+        }
+        Insert: {
+          ad_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          provider?: string | null
+          script_code?: string | null
+        }
+        Update: {
+          ad_type?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          provider?: string | null
+          script_code?: string | null
+        }
+        Relationships: []
+      }
+      api_tokens: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_used_at: string | null
+          name: string | null
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          name?: string | null
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          name?: string | null
+          token?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          ad_density: string | null
+          cpm_rate: number
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          steps_count: number
+        }
+        Insert: {
+          ad_density?: string | null
+          cpm_rate?: number
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          steps_count?: number
+        }
+        Update: {
+          ad_density?: string | null
+          cpm_rate?: number
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          steps_count?: number
+        }
+        Relationships: []
+      }
+      fraud_logs: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          link_id: string | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          link_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          link_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_logs_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fraud_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      links: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          is_private: boolean | null
+          original_url: string
+          password: string | null
+          short_slug: string
+          subdomain_id: string | null
+          title: string | null
+          total_clicks: number | null
+          total_revenue: number | null
+          unique_clicks: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_private?: boolean | null
+          original_url: string
+          password?: string | null
+          short_slug: string
+          subdomain_id?: string | null
+          title?: string | null
+          total_clicks?: number | null
+          total_revenue?: number | null
+          unique_clicks?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_private?: boolean | null
+          original_url?: string
+          password?: string | null
+          short_slug?: string
+          subdomain_id?: string | null
+          title?: string | null
+          total_clicks?: number | null
+          total_revenue?: number | null
+          unique_clicks?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "links_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "links_subdomain_id_fkey"
+            columns: ["subdomain_id"]
+            isOneToOne: false
+            referencedRelation: "subdomains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "links_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          balance: number | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          is_admin: boolean | null
+          is_verified: boolean | null
+          total_withdrawn: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          balance?: number | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          is_admin?: boolean | null
+          is_verified?: boolean | null
+          total_withdrawn?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          balance?: number | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          is_admin?: boolean | null
+          is_verified?: boolean | null
+          total_withdrawn?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: Json | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value?: Json | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: Json | null
+        }
+        Relationships: []
+      }
+      subdomains: {
+        Row: {
+          created_at: string | null
+          domain: string
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+        }
+        Relationships: []
+      }
+      visits: {
+        Row: {
+          country_code: string | null
+          created_at: string | null
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          is_unique: boolean | null
+          is_valid: boolean | null
+          link_id: string
+          referrer: string | null
+          revenue_generated: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          is_unique?: boolean | null
+          is_valid?: boolean | null
+          link_id: string
+          referrer?: string | null
+          revenue_generated?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          is_unique?: boolean | null
+          is_valid?: boolean | null
+          link_id?: string
+          referrer?: string | null
+          revenue_generated?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visits_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      withdrawals: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string | null
+          id: string
+          payment_details: Json
+          payment_method: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string | null
+          id?: string
+          payment_details: Json
+          payment_method: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string | null
+          id?: string
+          payment_details?: Json
+          payment_method?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
