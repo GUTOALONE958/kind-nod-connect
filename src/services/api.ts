@@ -4,7 +4,7 @@ export const linkService = {
   async getLinkBySlug(slug: string) {
     const { data, error } = await supabase
       .from("links")
-      .select("*, categories(*), subdomains(*)")
+      .select("*, categories:category_id(*), subdomains:subdomain_id(*)")
       .eq("short_slug", slug)
       .eq("is_active", true)
       .single();
@@ -27,7 +27,7 @@ export const linkService = {
   async getUserLinks(userId: string) {
     const { data, error } = await supabase
       .from("links")
-      .select("*, categories(name), subdomains(domain)")
+      .select("*, categories:category_id(name), subdomains:subdomain_id(domain)")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     

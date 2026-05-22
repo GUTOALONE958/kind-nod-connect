@@ -98,7 +98,7 @@ function Dashboard() {
     // Fetch recent links
     const { data: linksRes } = await supabase
       .from('links')
-      .select('*, subdomains(domain)')
+      .select('*, subdomains:subdomain_id(domain)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(5);

@@ -47,11 +47,16 @@ function LinksPage() {
     
     const { data, error } = await supabase
       .from("links")
-      .select("*, categories(name), subdomains(domain)")
+      .select(`
+        *,
+        categories:category_id(name),
+        subdomains:subdomain_id(domain)
+      `)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error("Links fetch error:", error);
       toast.error("Erro ao buscar links");
     } else {
       setLinks(data || []);
