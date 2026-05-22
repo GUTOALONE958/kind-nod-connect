@@ -183,9 +183,9 @@ function AdminPanel() {
             <Card className="border-none shadow-md bg-card/50">
               <CardContent className="pt-6">
                 <div className="text-sm font-bold text-muted-foreground mb-2">Platform Revenue</div>
-                <div className="text-2xl font-black">R$ 0.00</div>
+                <div className="text-2xl font-black">{formatCurrency(withdrawals.filter(w => w.status === 'completed').reduce((acc, curr) => acc + Number(curr.amount), 0))}</div>
                 <div className="text-[10px] text-muted-foreground font-bold flex items-center gap-1 mt-1">
-                  0% from last month
+                  Total processado
                 </div>
               </CardContent>
             </Card>
@@ -205,8 +205,8 @@ function AdminPanel() {
             </Card>
             <Card className="border-none shadow-md bg-card/50">
               <CardContent className="pt-6">
-                <div className="text-sm font-bold text-muted-foreground mb-2">Total Clicks</div>
-                <div className="text-2xl font-black">0</div>
+                <div className="text-sm font-bold text-muted-foreground mb-2">Global Balance</div>
+                <div className="text-2xl font-black">{formatCurrency(users.reduce((acc, curr) => acc + Number(curr.balance || 0), 0))}</div>
               </CardContent>
             </Card>
           </div>
@@ -380,9 +380,32 @@ function AdminPanel() {
                         <p className="font-bold">{c.name}</p>
                         <p className="text-xs text-muted-foreground">{c.step_count} Etapas • {c.time_per_step}s por etapa</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex flex-col items-end gap-2">
                         <p className="font-black text-primary">R$ {c.cpm_value.toFixed(2)} CPM</p>
-                        <Button variant="link" size="sm" className="h-auto p-0">Edit</Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8"
+                            onClick={() => {
+                              const newVal = prompt("Novo valor de CPM:", c.cpm_value.toString());
+                              if (newVal !== null) updateCategory(c.id, { cpm_value: parseFloat(newVal) });
+                            }}
+                          >
+                            Editar CPM
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8"
+                            onClick={() => {
+                              const newSteps = prompt("Número de etapas:", c.step_count.toString());
+                              if (newSteps !== null) updateCategory(c.id, { step_count: parseInt(newSteps) });
+                            }}
+                          >
+                            Etapas
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
