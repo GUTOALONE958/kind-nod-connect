@@ -64,6 +64,7 @@ function AdminPanel() {
       supabase.from("withdrawals").select("*, profiles(display_name)").order("created_at", { ascending: false }),
       supabase.from("categories").select("*").order("cpm_value", { ascending: true }),
       supabase.from("subdomains").select("*").order("created_at", { ascending: false }),
+      // @ts-ignore
       supabase.from("ads").select("*").order("created_at", { ascending: false })
     ]);
 
