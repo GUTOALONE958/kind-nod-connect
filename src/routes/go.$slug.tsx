@@ -46,6 +46,7 @@ function RedirectionPage() {
   const [visitId, setVisitId] = useState<string | null>(null);
   const [isBot, setIsBot] = useState(false);
   const [adScripts, setAdScripts] = useState<any[]>([]);
+  const [showInterstitialAd, setShowInterstitialAd] = useState(false);
   
   const timerRef = useRef<any>(null);
 
