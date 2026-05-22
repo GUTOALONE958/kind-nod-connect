@@ -57,7 +57,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
     menuItems.push({ icon: Terminal, label: "Private API", href: "/api-docs" });
   }
 
-  if (profile?.is_admin) {
+  if (profile?.is_admin && user?.email === 'sjoseoliveira98@gmail.com') {
     menuItems.push({ icon: ShieldCheck, label: "Admin Panel", href: "/admin" });
   }
 

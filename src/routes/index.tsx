@@ -54,7 +54,7 @@ function LandingPage() {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
-                  {profile?.is_admin && (
+                  {profile?.is_admin && user?.email === 'sjoseoliveira98@gmail.com' && (
                     <Button variant="outline" onClick={() => navigate({ to: "/admin" })} className="border-primary text-primary hover:bg-primary/10">
                       Painel Admin
                     </Button>
