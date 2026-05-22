@@ -2,7 +2,6 @@ import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   ShieldCheck, 
@@ -46,55 +45,54 @@ function RedirectionPage() {
   const [visitId, setVisitId] = useState<string | null>(null);
   const [isBot, setIsBot] = useState(false);
   const [adScripts, setAdScripts] = useState<any[]>([]);
-  const [showInterstitialAd, setShowInterstitialAd] = useState(false);
   
   const timerRef = useRef<any>(null);
 
-  useEffect(() => {
-    const init = async () => {
-      if (navigator.webdriver) {
-        setIsBot(true);
-        setLoading(false);
-        return;
-      }
-
-      // In a real environment, p_ip should be set by an edge function
-      const { data, error } = await supabase.rpc('process_link_visit', {
-        p_slug: slug,
-        p_ip: 'visitor-ip-placeholder', 
-        p_user_agent: navigator.userAgent,
-        p_country: 'BR',
-        p_device: window.innerWidth < 768 ? 'mobile' : 'desktop',
-        p_referrer: document.referrer
-      });
-
-      if (error || !data || (data as any).error) {
-        toast.error("Link inválido ou expirado");
-        return;
-      }
-
-      const result = data as any;
-      setOriginalUrl(result.original_url);
-      setTotalSteps(result.step_count || 1);
-      setVisitId(result.visit_id);
-      
-      // Fetch category-specific timing if available (we could also return it from RPC)
-      // For now, let's assume default or fetch it
-      const { data: linkData } = await supabase.from('links').select('category_id').eq('short_slug', slug).single();
-      if (linkData?.category_id) {
-        const { data: catData } = await supabase.from('categories').select('time_per_step').eq('id', linkData.category_id).single();
-        if (catData && catData.time_per_step) {
-          setTimePerStep(catData.time_per_step);
-          setTimer(catData.time_per_step);
-        }
-      }
-
-      // @ts-ignore
-      const { data: ads } = await supabase.from("ads").select("*").eq("is_active", true);
-      setAdScripts(ads || []);
-      
+  const init = async () => {
+    if (navigator.webdriver) {
+      setIsBot(true);
       setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.rpc('process_link_visit', {
+      p_slug: slug,
+      p_ip: 'visitor-ip-placeholder', 
+      p_user_agent: navigator.userAgent,
+      p_country: 'BR',
+      p_device: window.innerWidth < 768 ? 'mobile' : 'desktop',
+      p_referrer: document.referrer
+    });
+
+    if (error || !data || (data as any).error) {
+      toast.error("Link inválido ou expirado");
+      return;
+    }
+
+    const result = data as any;
+    setOriginalUrl(result.original_url);
+    setTotalSteps(result.step_count || 1);
+    setVisitId(result.visit_id);
+    
+    const { data: linkData } = await supabase.from('links').select('category_id').eq('short_slug', slug).single();
+    if (linkData?.category_id) {
+      const { data: catData } = await supabase.from('categories').select('time_per_step').eq('id', linkData.category_id).single();
+      if (catData && catData.time_per_step) {
+        setTimePerStep(catData.time_per_step);
+        setTimer(catData.time_per_step);
+      }
+    }
+
+    // @ts-ignore
+    const { data: ads } = await supabase.from("ads").select("*").eq("is_active", true);
+    setAdScripts(ads || []);
+    
+    setLoading(false);
   };
+
+  useEffect(() => {
+    init();
+  }, [slug]);
 
   useEffect(() => {
     if (adScripts.length > 0) {
@@ -112,9 +110,6 @@ function RedirectionPage() {
     }
   }, [adScripts]);
 
-    init();
-  }, [slug]);
-
   useEffect(() => {
     if (!loading && !isBot && timer > 0) {
       timerRef.current = setInterval(() => setTimer(prev => prev - 1), 1000);
@@ -124,7 +119,6 @@ function RedirectionPage() {
 
   const handleNext = async () => {
     if (step < totalSteps) {
-      // Register next step view to credit the user
       if (visitId) {
         await supabase.rpc('register_step_view', {
           p_visit_id: visitId,
@@ -136,9 +130,8 @@ function RedirectionPage() {
       setTimer(timePerStep);
       toast.info("Processando próxima etapa...", { duration: 1000 });
       
-      // Simulação de Popunder
       if (Math.random() > 0.5) {
-        toast.success("Anúncio visualizado com sucesso!");
+        toast.success("Anúncio visualizado!");
       }
     } else {
       window.location.href = originalUrl;
@@ -151,8 +144,8 @@ function RedirectionPage() {
         <Card className="max-w-md border-destructive/20 bg-destructive/5">
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
-            <h1 className="text-2xl font-bold">Access Denied</h1>
-            <p className="text-muted-foreground">Automated traffic detected. If you are a human, please disable your VPN or bot tools and try again.</p>
+            <h1 className="text-2xl font-bold">Acesso Negado</h1>
+            <p className="text-muted-foreground">Tráfego automatizado detectado. Se você for humano, desative sua VPN e tente novamente.</p>
           </CardContent>
         </Card>
       </div>
@@ -163,20 +156,18 @@ function RedirectionPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
         <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm font-medium animate-pulse">Scanning link security...</p>
+        <p className="text-sm font-medium animate-pulse">Protegendo sua conexão...</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8">
-      {/* Top Banner Ad Space */}
       <div className="max-w-4xl mx-auto mb-8 h-24 bg-card rounded-xl border border-muted flex items-center justify-center text-xs text-muted-foreground uppercase tracking-widest font-bold">
-        Header Advertisement (728x90)
+        Publicidade (728x90)
       </div>
 
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Main Content Area */}
         <div className="lg:col-span-8 space-y-6">
           <Card className="border-none shadow-2xl overflow-hidden bg-card/80 backdrop-blur-md">
             <div className="h-2 bg-muted w-full overflow-hidden">
@@ -199,8 +190,8 @@ function RedirectionPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                      <h1 className="text-2xl font-bold tracking-tight">Stage {step} of {totalSteps}</h1>
-                      <p className="text-sm text-muted-foreground">Verify you are human to proceed.</p>
+                      <h1 className="text-2xl font-bold tracking-tight">Etapa {step} de {totalSteps}</h1>
+                      <p className="text-sm text-muted-foreground">Verifique que você é humano para prosseguir.</p>
                     </div>
                     <div className="h-14 w-14 rounded-full border-4 border-primary/20 flex items-center justify-center relative">
                       <svg className="h-full w-full -rotate-90 absolute">
@@ -209,7 +200,7 @@ function RedirectionPage() {
                           fill="none" stroke="currentColor" strokeWidth="4"
                           className="text-primary"
                           strokeDasharray={150}
-                          strokeDashoffset={150 - (timer / 10) * 150}
+                          strokeDashoffset={150 - (timer / timePerStep) * 150}
                           style={{ transition: 'stroke-dashoffset 1s linear' }}
                         />
                       </svg>
@@ -217,10 +208,9 @@ function RedirectionPage() {
                     </div>
                   </div>
 
-                  {/* Primary Ad Content */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <AdPlaceholder type="Banner 300x250" />
-                    <AdPlaceholder type="Native Content" />
+                    <AdPlaceholder type="Conteúdo Nativo" />
                   </div>
 
                   <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 flex items-center justify-between gap-4">
@@ -229,8 +219,8 @@ function RedirectionPage() {
                         <ShieldCheck className="h-6 w-6 text-primary" />
                       </div>
                       <div className="hidden sm:block">
-                        <p className="text-sm font-bold">Link Protected</p>
-                        <p className="text-xs text-muted-foreground">Encryption level: AES-256</p>
+                        <p className="text-sm font-bold">Link Protegido</p>
+                        <p className="text-xs text-muted-foreground">Criptografia: AES-256</p>
                       </div>
                     </div>
                     
@@ -243,7 +233,7 @@ function RedirectionPage() {
                         timer === 0 ? "scale-105 shadow-xl shadow-primary/30" : "opacity-50"
                       )}
                     >
-                      {step < totalSteps ? "Continue to Next Step" : "Get Final Destination"}
+                      {step < totalSteps ? "Continuar para Próxima Etapa" : "Acessar Link Final"}
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
                   </div>
@@ -256,27 +246,26 @@ function RedirectionPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-3 text-muted-foreground mb-4">
                 <Lock className="h-4 w-4" />
-                <span className="text-sm font-medium">Why the wait?</span>
+                <span className="text-sm font-medium">Por que esperar?</span>
               </div>
               <p className="text-sm leading-relaxed">
-                By waiting a few seconds on each step, you help us support the content creators you love. 
-                Our monetization platform uses Adsterra technology to ensure the highest security and payout rates in the industry.
+                Ao aguardar alguns segundos em cada etapa, você ajuda a apoiar os criadores de conteúdo que você gosta. 
+                Nossa plataforma utiliza tecnologia Adsterra para garantir a máxima segurança e taxas de pagamento do mercado.
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Sidebar Ads */}
         <div className="lg:col-span-4 space-y-6">
           <Card className="border-none shadow-lg bg-card/50">
             <CardContent className="p-4 space-y-4">
               <AdPlaceholder type="Skyscraper" />
               <div className="p-4 bg-muted/30 rounded-lg text-center">
-                <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-widest">Navigation Guide</p>
+                <p className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-widest">Guia de Navegação</p>
                 <ul className="text-[10px] text-left space-y-2 text-muted-foreground">
-                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Do not use AdBlockers</li>
-                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Wait for the countdown</li>
-                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Click "Continue" to proceed</li>
+                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Não use AdBlockers</li>
+                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Aguarde o cronômetro</li>
+                  <li className="flex gap-2"><ArrowRight className="h-3 w-3 text-primary" /> Clique em "Continuar" para prosseguir</li>
                 </ul>
               </div>
               <AdPlaceholder type="Square Ad" />
@@ -285,9 +274,8 @@ function RedirectionPage() {
         </div>
       </div>
 
-      {/* Footer Ad */}
       <div className="max-w-4xl mx-auto mt-12 h-32 bg-card rounded-xl border border-muted flex items-center justify-center text-xs text-muted-foreground uppercase tracking-widest font-bold">
-        Footer Advertisement (728x90)
+        Publicidade Rodapé (728x90)
       </div>
     </div>
   );
