@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,17 @@ function RegisterPage() {
             />
             <Button type="submit" className="w-full">Sign Up</Button>
           </form>
+          <div className="mt-6 text-center text-sm">
+            <p className="text-muted-foreground">
+              Já tem uma conta?{" "}
+              <Link to="/login" className="text-primary font-bold hover:underline">
+                Faça login
+              </Link>
+            </p>
+            <Link to="/" className="inline-block mt-4 text-xs text-muted-foreground hover:text-primary transition-colors">
+              Voltar para a Home
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
