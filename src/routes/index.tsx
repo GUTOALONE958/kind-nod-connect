@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, createFileRoute } from "@tanstack/react-router";
 
-export default function Index() {
+export const Route = createFileRoute("/")({
+  component: Index,
+});
+
+function Index() {
   const { user } = useAuth();
   const [url, setUrl] = useState("");
   const navigate = useNavigate();
@@ -11,11 +15,17 @@ export default function Index() {
   const handleShorten = async () => {
     if (!user) return navigate({ to: "/login" });
     
+    // Get default subdomain and category
+    const { data: sub } = await supabase.from("subdomains").select("id").eq("is_default", true).single();
+    const { data: cat } = await supabase.from("categories").select("id").eq("name", "Easy").single();
+
     const slug = Math.random().toString(36).substring(7);
     const { data, error } = await supabase.from("links").insert({
       user_id: user.id,
       original_url: url,
       short_slug: slug,
+      subdomain_id: sub?.id,
+      category_id: cat?.id
     });
     
     if (error) alert(error.message);
