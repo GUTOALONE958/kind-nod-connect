@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as GoSlugRouteImport } from './routes/go.$slug'
 
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/go/$slug': typeof GoSlugRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/go/$slug': typeof GoSlugRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/api-docs': typeof ApiDocsRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
   '/go/$slug': typeof GoSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/admin' | '/api-docs' | '/dashboard' | '/login' | '/go/$slug'
+  fullPaths:
+    | '/admin'
+    | '/api-docs'
+    | '/dashboard'
+    | '/login'
+    | '/register'
+    | '/go/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/admin' | '/api-docs' | '/dashboard' | '/login' | '/go/$slug'
+  to:
+    | '/admin'
+    | '/api-docs'
+    | '/dashboard'
+    | '/login'
+    | '/register'
+    | '/go/$slug'
   id:
     | '__root__'
     | '/admin'
     | '/api-docs'
     | '/dashboard'
     | '/login'
+    | '/register'
     | '/go/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -82,11 +104,19 @@ export interface RootRouteChildren {
   ApiDocsRoute: typeof ApiDocsRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
   GoSlugRoute: typeof GoSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -130,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDocsRoute: ApiDocsRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
   GoSlugRoute: GoSlugRoute,
 }
 export const routeTree = rootRouteImport
