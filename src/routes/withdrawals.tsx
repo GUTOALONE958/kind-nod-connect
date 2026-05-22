@@ -31,7 +31,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -58,7 +58,7 @@ function WithdrawalsPage() {
     const { data, error } = await supabase
       .from("withdrawals")
       .select("*")
-      .eq("user_id", user?.id)
+      .eq("user_id", user!.id)
       .order("created_at", { ascending: false });
 
     if (error) {
