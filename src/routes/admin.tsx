@@ -100,6 +100,45 @@ function AdminPanel() {
     }
   };
 
+  const updateAdStatus = async (id: string, active: boolean) => {
+    const { error } = await supabase
+      .from("ads_config")
+      .update({ is_active: active })
+      .eq("id", id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Ad status updated!");
+      fetchAllData();
+    }
+  };
+
+  const deleteAd = async (id: string) => {
+    const { error } = await supabase
+      .from("ads_config")
+      .delete()
+      .eq("id", id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Ad deleted!");
+      fetchAllData();
+    }
+  };
+
+  const updateCategory = async (id: string, updates: any) => {
+    const { error } = await supabase
+      .from("categories")
+      .update(updates)
+      .eq("id", id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Category updated!");
+      fetchAllData();
+    }
+  };
+
   if (loading) return null;
   if (!profile?.is_admin) return (
     <div className="h-screen flex items-center justify-center p-8 text-center">
