@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,17 @@ function LoginPage() {
             <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
               Sign in with Google
             </Button>
+          </div>
+          <div className="mt-6 text-center text-sm">
+            <p className="text-muted-foreground">
+              Não tem uma conta?{" "}
+              <Link to="/register" className="text-primary font-bold hover:underline">
+                Cadastre-se agora
+              </Link>
+            </p>
+            <Link to="/" className="inline-block mt-4 text-xs text-muted-foreground hover:text-primary transition-colors">
+              Voltar para a Home
+            </Link>
           </div>
         </CardContent>
       </Card>

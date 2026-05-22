@@ -105,19 +105,19 @@ function LandingPage() {
           {/* Stats Bar */}
           <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 border-y py-12 bg-card/30 backdrop-blur-sm rounded-3xl">
             <div>
-              <p className="text-4xl font-bold mb-1">50M+</p>
+              <p className="text-4xl font-bold mb-1">0</p>
               <p className="text-muted-foreground uppercase tracking-widest text-xs font-bold">Total Links</p>
             </div>
             <div>
-              <p className="text-4xl font-bold mb-1">$1.2M</p>
+              <p className="text-4xl font-bold mb-1">R$ 0.00</p>
               <p className="text-muted-foreground uppercase tracking-widest text-xs font-bold">Paid to Users</p>
             </div>
             <div>
-              <p className="text-4xl font-bold mb-1">100K+</p>
+              <p className="text-4xl font-bold mb-1">0</p>
               <p className="text-muted-foreground uppercase tracking-widest text-xs font-bold">Active Users</p>
             </div>
             <div>
-              <p className="text-4xl font-bold mb-1">$50+</p>
+              <p className="text-4xl font-bold mb-1">R$ 0.00</p>
               <p className="text-muted-foreground uppercase tracking-widest text-xs font-bold">Max CPM</p>
             </div>
           </div>

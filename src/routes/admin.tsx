@@ -145,9 +145,9 @@ function AdminPanel() {
             <Card className="border-none shadow-md bg-card/50">
               <CardContent className="pt-6">
                 <div className="text-sm font-bold text-muted-foreground mb-2">Platform Revenue</div>
-                <div className="text-2xl font-black">R$ 12,450.20</div>
-                <div className="text-[10px] text-emerald-500 font-bold flex items-center gap-1 mt-1">
-                  <Plus className="h-2 w-2" /> 24% from last month
+                <div className="text-2xl font-black">R$ 0.00</div>
+                <div className="text-[10px] text-muted-foreground font-bold flex items-center gap-1 mt-1">
+                  0% from last month
                 </div>
               </CardContent>
             </Card>
@@ -168,7 +168,7 @@ function AdminPanel() {
             <Card className="border-none shadow-md bg-card/50">
               <CardContent className="pt-6">
                 <div className="text-sm font-bold text-muted-foreground mb-2">Total Clicks</div>
-                <div className="text-2xl font-black">842,102</div>
+                <div className="text-2xl font-black">0</div>
               </CardContent>
             </Card>
           </div>
