@@ -150,7 +150,7 @@ function Dashboard() {
           value={formatCurrency(profile?.balance || 0)} 
           icon={DollarSign} 
           description="Available for withdrawal"
-          trend="+12.5%"
+          trend="0%"
         />
         <StatCard 
           title="Total Clicks" 
