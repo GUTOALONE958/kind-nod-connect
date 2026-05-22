@@ -36,7 +36,7 @@ const SidebarItem = ({ icon: Icon, label, href, active }: { icon: any, label: st
 );
 
 export const Sidebar = ({ className }: SidebarProps) => {
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
